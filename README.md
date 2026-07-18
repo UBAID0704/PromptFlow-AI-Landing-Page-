@@ -351,12 +351,17 @@ The live application includes:
 
 ## AI Landing Page
 
-(Add screenshot here)
+<img width="1200" height="615" alt="image" src="https://github.com/user-attachments/assets/d33a92b1-0d32-419f-84ea-e816d88bc846" />
+<img width="1204" height="523" alt="image" src="https://github.com/user-attachments/assets/a585d641-4da6-4acf-97fd-290ff1793eb6" />
+
 
 
 ## AI Model Explorer
 
-(Add screenshot here)
+<img width="1247" height="622" alt="image" src="https://github.com/user-attachments/assets/b2d03992-885b-47fa-8db7-90c9ed87d46a" />
+<img width="1262" height="611" alt="image" src="https://github.com/user-attachments/assets/2dacab5f-6bb0-44bb-afa9-2cf8f10a07c0" />
+<img width="1243" height="608" alt="image" src="https://github.com/user-attachments/assets/b915d5b7-3428-44a6-b9f6-0832896b1c95" />
+
 
 ---
 
