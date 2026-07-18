@@ -2,6 +2,7 @@ import React from 'react';
 import Navbar from "./Navbar.jsx";
 import Hero from "./Hero.jsx";
 import Features from "./Features.jsx";
+import AiModelsList from "./AiModelsList.jsx"; // 1. Import it here
 import Pricing from "./Pricing.jsx";
 import Contact from "./Contact.jsx";
 import Footer from "./Footer.jsx";
@@ -11,22 +12,21 @@ function App() {
     <div className="app-container">
       <Navbar />
       
-      {/* Home Section */}
       <div id="home">
         <Hero />
       </div>
 
-      {/* Features Section */}
       <div id="features">
         <Features />
       </div>
 
-      {/* Pricing Section */}
+      {/* 2. Insert it right here under your AI features */}
+      <AiModelsList /> 
+
       <div id="pricing">
         <Pricing />
       </div>
 
-      {/* Contact Section */}
       <div id="contact">
         <Contact />
       </div>
