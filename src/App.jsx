@@ -1,10 +1,10 @@
 import React from 'react';
-import Navbar from './Components/Navbar';
-import Hero from './Components/Hero';
-import Features from './Components/Features';
-import Pricing from './Components/Pricing';
-import Contact from './Components/Contact';
-import Footer from './Components/Footer';
+import Navbar from "./Navbar.jsx";
+import Hero from "./Hero.jsx";
+import Features from "./Features.jsx";
+import Pricing from "./Pricing.jsx";
+import Contact from "./Contact.jsx";
+import Footer from "./Footer.jsx";
 
 function App() {
   return (
