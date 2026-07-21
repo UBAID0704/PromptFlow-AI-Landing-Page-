@@ -1,84 +1,48 @@
 # 🤖 PromptFlow AI — Full Stack Internship Project
 
-A modern, responsive, and full-stack AI-powered web application built using **React.js**, **Vite**, **Express.js**, and **JWT Authentication**. This project was completed as part of a **Full Stack Internship** and demonstrates frontend development, API integration, CRUD operations, authentication, and responsive UI/UX design.
+A modern, responsive, full-stack AI-powered web application built using **React.js**, **Vite**, **Express.js**, **bcrypt.js**, and **JWT Authentication**. This project was completed as part of a **Full Stack Internship** and demonstrates modern frontend development, REST API integration, CRUD operations, secure authentication, route guarding, and responsive UI/UX design.
 
-The project was completed in multiple phases:
+The project evolved across four key milestones:
 
 - **Week 1 – Task 1:** Consume a Public API (Responsive AI Landing Page)
 - **Week 1 – Task 2:** Responsive UI From a Design Brief (Hugging Face API Integration)
 - **Week 2 – Task 1:** Full CRUD: Frontend Talking to Your Own Backend (AI Model Ratings & Admin Moderation Panel)
+- **Week 2 – Task 2:** Authentication Flow (Signup, Login, Password Hashing, & Protected Routes)
 
 ---
 
-# 📌 Project Overview
+## 📌 Project Overview
 
-PromptFlow AI is an AI-focused web application designed to showcase AI-powered tools while allowing users to explore AI models and share community feedback.
+**PromptFlow AI** is a full-stack platform designed to showcase live AI models, collect community ratings, and provide authenticated user accounts along with administrative moderation capabilities.
 
-The project evolved from a static landing page into a full-stack application featuring:
+The platform includes:
 
-- Responsive AI landing page
-- Live AI model explorer
-- Community AI model ratings
-- Admin moderation dashboard
-- JWT-secured CRUD operations
-- REST API integration
-- Responsive modern UI
-
----
-
-# 🚀 Week 1 – Task 1: Responsive AI Landing Page
-
-## 🎯 Objective
-
-Build a modern and fully responsive landing page for an AI product using React.js while following component-based architecture and responsive design principles.
+- Responsive AI landing page with interactive UI sections
+- Live AI model explorer powered by the Hugging Face API
+- Community review and rating submission system
+- Password-protected Admin Moderation Console
+- Secure User Authentication System (Signup, Login, & Session Management)
+- JWT-secured API routes with bcrypt.js password hashing
+- Protected user route guards with auto-redirects
+- Real-time server active-session logging in the terminal
 
 ---
 
-## ✨ Features
+## 🚀 Week 1 – Task 1: Responsive AI Landing Page
 
-- Responsive Navigation Bar
-- Hero Section
-- AI Feature Showcase
-- Pricing Plans
-- Contact Section
-- Footer
-- Mobile-first responsive layout
-- Reusable React components
-- Modern glassmorphism UI
+### 🎯 Objective
 
----
+Build a modern, component-based landing page for an AI product using React.js following mobile-first principles.
 
-## 🛠 Technologies Used
+### ✨ Features
 
-### Frontend
+- Responsive navigation bar with smooth scrolling
+- Hero banner with modern call-to-action buttons
+- Feature showcase cards highlighting platform capabilities
+- Interactive pricing tiers and contact inquiry section
+- Reusable components styled with a dark glassmorphism theme
 
-- React.js
-- Vite
-- JavaScript (ES6+)
-- HTML5
-- CSS3
-
----
-
-## 📂 Component Structure
-
-```
-src/
-
-├── App.jsx
-├── main.jsx
-├── index.css
-├── Navbar.jsx
-├── Hero.jsx
-├── Features.jsx
-├── Pricing.jsx
-├── Contact.jsx
-└── Footer.jsx
-```
-
----
-
-## 🚀 Learning Outcomes
+### 🚀 Learning Outcomes
 
 - React component architecture
 - Responsive UI development
@@ -88,406 +52,258 @@ src/
 
 ---
 
-# 🤖 Week 1 – Task 2: Hugging Face AI Model Explorer
+## 🤖 Week 1 – Task 2: Hugging Face AI Model Explorer
 
-## 🎯 Objective
+### 🎯 Objective
 
-Enhance the landing page by integrating a public API to display live AI model information dynamically.
+Enhance the landing page by fetching live model data from a public API and rendering interactive UI elements dynamically.
 
----
+### ✨ Features
 
-## ✨ Features
+- Dynamic API integration with Hugging Face (`AiModelsList.jsx`)
+- Live search and filtering by model name or tags
+- Loading indicators and error-handling states
+- Responsive model cards with direct links to Hugging Face repositories
 
-- Fetch AI models from Hugging Face API
-- Dynamic rendering
-- Search/filter functionality
-- Loading state
-- Error handling
-- Responsive model cards
-
----
-
-## 📂 Additional Component
+### 🔄 Data Flow
 
 ```
-AiModelsList.jsx
+User → React Component → Fetch API → Hugging Face API → JSON Response → Dynamic UI Rendering
 ```
 
-Responsible for:
-
-- Fetching AI model data
-- Managing loading state
-- Handling API errors
-- Filtering models
-- Rendering dynamic content
-
----
-
-## 🔄 Data Flow
-
-```
-User
-
-↓
-
-React Component
-
-↓
-
-Fetch API
-
-↓
-
-Hugging Face API
-
-↓
-
-JSON Response
-
-↓
-
-Dynamic UI Rendering
-```
-
----
-
-## 🚀 Skills Demonstrated
+### 🚀 Skills Demonstrated
 
 - REST API Integration
 - Fetch API
-- React Hooks
-- useState
-- useEffect
-- Dynamic rendering
-- State management
+- React Hooks (useState, useEffect)
+- Dynamic rendering & state management
 - Error handling
 
 ---
 
-# ⭐ Week 2 – Task 1: AI Model Ratings & Admin Moderation Panel
+## ⭐ Week 2 – Task 1: AI Model Ratings & Admin Moderation Panel
 
-## 🎯 Objective
+### 🎯 Objective
 
-Transform the application into a secure full-stack system by adding CRUD functionality, public reviews, administrator moderation, and JWT authentication.
+Transform the site into a CRUD-enabled full-stack platform with public feedback submission and administrative controls.
+
+### 🌟 Public Review Interface (`CrudDashboard.jsx`)
+
+- Submit star ratings (1–5 stars) and feedback
+- Scrollable community review feed
+- Read-only layout preventing unauthorized editing or deletion
+
+Public users **can**: create reviews, view reviews
+Public users **cannot**: edit or delete reviews
+
+### 🔒 Admin Moderation Panel (`AdminPanel.jsx`)
+
+- Password-protected admin gate (`admin123`)
+- JWT token stored in localStorage
+- Full CRUD access: inspect, modify, or delete any user submission
+
+### 🛡 Backend Security
+
+- Protected Routes: `PUT`, `DELETE`
+- Authentication middleware verifies Bearer Token & authorized administrator access
+- Unauthorized users cannot modify or remove any review
 
 ---
 
-# 🌟 Public Review Interface
+## 🔐 Week 2 – Task 2: Real User Authentication & Protected Routes
 
-Implemented inside:
+### 🎯 Objective
+
+Implement real user account management on the frontend and backend, with secure password handling, persistent sessions, and protected route access.
+
+### ✨ Features
+
+- **Dual-Purpose Auth Form (`AuthModal.jsx`):** Client-side validation rules (required fields, `@` email format, 6+ character password minimum)
+- **Password Hashing (bcryptjs):** Encrypts user passwords securely on the Express server before saving
+- **Token Storage & Session Persistence:** Issues JWTs on signup/login, saved in localStorage, attached as Bearer tokens in Authorization headers
+- **Protected Dashboard Route (`Dashboard.jsx`):** Private workspace route guarded in `App.jsx`. Unauthenticated visitors are automatically redirected to the login interface
+- **Logout & Session Termination:** Clears client tokens and notifies the backend to destroy active session references
+- **Real-Time Active Session Logs:** Prints live terminal notifications whenever users log in, sign up, or log out
+
+---
+
+## 📂 Complete Project Structure
 
 ```
-CrudDashboard.jsx
-```
-
-Features include:
-
-- Submit AI model ratings
-- Interactive 1–5 star selector
-- Leave community feedback
-- View public reviews
-- Scrollable review feed
-- Read-only interface for visitors
-
-Public users can:
-
-- Create reviews
-- View reviews
-
-Public users cannot:
-
-- Edit reviews
-- Delete reviews
-
----
-
-# 🔒 Admin Moderation Panel
-
-Implemented inside:
-
-```
-AdminPanel.jsx
-```
-
-Features include:
-
-- Admin login
-- Password-protected dashboard
-- JWT authentication
-- Review moderation
-- Edit reviews
-- Delete reviews
-- Persistent login using localStorage
-
----
-
-# 🛡 Backend Security
-
-Implemented using:
-
-- Express.js
-- JSON Web Token (JWT)
-
-Protected Routes:
-
-- PUT
-- DELETE
-
-Authentication Middleware verifies:
-
-- Bearer Token
-- Authorized administrator access
-
-Unauthorized users cannot modify or remove any review.
-
----
-
-# ⚙ Backend Features
-
-- Express Server
-- JWT Authentication
-- REST API
-- CRUD Operations
-- Authentication Middleware
-- Protected Endpoints
-- Safe JSON Parsing
-- Error Handling
-
----
-
-# 📂 Project Structure
-
-```text
 AI-LANDING-PAGE/
 │
+├── .vscode/
+├── node_modules/
+│
 ├── server/
-│   └── index.js
-│       # Express backend with CRUD APIs, JWT authentication, and protected routes
+│   └── index.js            # Express backend handling Auth, JWT verification, bcrypt,
+│                            # active session logging, and CRUD API endpoints
 │
 ├── src/
-│   ├── AdminPanel.jsx
-│   │   # Protected admin dashboard for review moderation
-│   │
-│   ├── AiModelsList.jsx
-│   │   # Fetches and displays AI models from the Hugging Face API
-│   │
-│   ├── App.jsx
-│   │   # Main application layout and routing between components
-│   │
-│   ├── Contact.jsx
-│   │   # Contact section
-│   │
-│   ├── CrudDashboard.jsx
-│   │   # Public AI model ratings and feedback interface
-│   │
-│   ├── Features.jsx
-│   │   # AI feature showcase
-│   │
-│   ├── Footer.jsx
-│   │   # Footer section
-│   │
-│   ├── Hero.jsx
-│   │   # Hero banner and call-to-action
-│   │
-│   ├── index.css
-│   │   # Global styles and responsive design
-│   │
-│   ├── main.jsx
-│   │   # React application entry point
-│   │
-│   ├── Navbar.jsx
-│   │   # Responsive navigation bar
-│   │
-│   └── Pricing.jsx
-│       # Pricing plans section
+│   ├── AdminPanel.jsx       # Protected admin moderation panel
+│   ├── AiModelsList.jsx     # Live model explorer using Hugging Face API
+│   ├── App.jsx              # Root layout, view router, and route guard logic
+│   ├── AuthModal.jsx        # Client-validated Signup & Login form component
+│   ├── Contact.jsx          # Contact section
+│   ├── CrudDashboard.jsx    # Public rating & review submission panel
+│   ├── Dashboard.jsx        # Protected user workspace route
+│   ├── Features.jsx         # AI product features showcase
+│   ├── Footer.jsx           # Platform footer
+│   ├── Hero.jsx             # Hero section banner
+│   ├── index.css            # Global dark-theme styles & glassmorphism
+│   ├── main.jsx             # React entry point
+│   ├── Navbar.jsx           # Navigation bar with dynamic Auth & Dashboard links
+│   └── Pricing.jsx          # Subscription pricing tiers
 │
-├── index.html
-│   # Main HTML template
-│
-├── package.json
-│   # Project metadata, dependencies, and scripts
-│
-├── package-lock.json
-│   # Automatically generated dependency lock file
-│
-└── README.md
-    # Project documentation
+├── index.html               # Main HTML entry point
+├── package.json             # Dependencies (express, cors, jsonwebtoken, bcryptjs, vite, react)
+├── package-lock.json        # Automatically generated dependency lock file
+└── README.md                # Project documentation
 ```
 
-# 🔑 Admin Credentials
+---
 
-| Role | Password | Permissions |
-|------|----------|-------------|
-| Admin | admin123 | Full CRUD Access |
-| Public User | None | Create & Read Only |
+## 🔑 Credentials & Access Levels
+
+| Role | Access Method / Password | Permissions |
+|------|---------------------------|-------------|
+| **Public Visitor** | None | Submit ratings & read community feedback |
+| **Registered User** | Created via Signup | Access protected `/dashboard` & session persistence |
+| **Administrator** | Password: `admin123` | Full CRUD access (Create, Read, Update, Delete) |
 
 ---
 
-# 🌐 API Endpoints
+## 🌐 API Endpoints Overview
 
-| Method | Endpoint | Access | Description |
-|---------|----------|--------|-------------|
-| GET | /api/contacts | Public | Retrieve all reviews |
-| POST | /api/contacts | Public | Submit a review |
-| POST | /api/admin/login | Public | Authenticate administrator |
-| PUT | /api/contacts/:id | Admin | Update review |
-| DELETE | /api/contacts/:id | Admin | Delete review |
-
----
-
-# 🎨 Design System
-
-The application follows a consistent visual design system.
-
-## Layout
-
-- CSS Flexbox
-- CSS Grid
-- Responsive Breakpoints
-- Mobile-first Design
-
-## Typography
-
-- Clear hierarchy
-- Consistent spacing
-- Readable text
-
-## UI Style
-
-- Modern AI-inspired interface
-- Dark theme
-- Glassmorphism effects
-- Interactive cards
-- Smooth layouts
+| Method | Endpoint | Access Level | Description |
+|--------|----------|---------------|--------------|
+| GET | `/api/contacts` | Public | Retrieve all community ratings & messages |
+| POST | `/api/contacts` | Public | Submit new feedback record |
+| POST | `/api/auth/signup` | Public | Register new user account with hashed password |
+| POST | `/api/auth/login` | Public | Authenticate user & issue signed JWT |
+| POST | `/api/auth/logout` | User | Clear session from active tracking |
+| GET | `/api/auth/me` | Protected | Verify user JWT token and fetch profile |
+| POST | `/api/admin/login` | Admin | Authenticate admin password (`admin123`) |
+| PUT | `/api/contacts/:id` | **Admin Only** | Update existing record (Requires JWT) |
+| DELETE | `/api/contacts/:id` | **Admin Only** | Remove review from database (Requires JWT) |
+| GET | `/api/admin/active-users` | Admin | View active sessions and real-time logs |
 
 ---
 
-# 📱 Responsive Design
+## 🎨 Design System
 
-Optimized for:
-
-- 📱 Mobile
-- 📱 Tablet
-- 💻 Desktop
-
-Implemented using:
-
-- Flexible layouts
-- CSS Media Queries
-- Responsive spacing
-- Adaptive components
+**Layout:** CSS Flexbox, CSS Grid, Responsive Breakpoints, Mobile-first Design
+**Typography:** Clear hierarchy, consistent spacing, readable text
+**UI Style:** Modern AI-inspired interface, dark theme, glassmorphism effects, interactive cards, smooth layouts
 
 ---
 
-# 🛠 Technologies Used
+## 🛠 Technologies Used
 
-## Frontend
-
-- React.js
-- Vite
-- JavaScript (ES6+)
-- HTML5
-- CSS3
-
-## Backend
-
-- Express.js
-- Node.js
-- JSON Web Token (JWT)
-- CORS
-
-## API
-
-- Hugging Face Models API
-- Fetch API
+**Frontend:** React.js, Vite, JavaScript (ES6+), HTML5, CSS3
+**Backend:** Express.js, Node.js, JSON Web Token (JWT), bcrypt.js, CORS
+**API:** Hugging Face Models API, Fetch API
 
 ---
 
-# 🚀 Installation
+## 🛠️ Installation & Setup
 
-## Clone Repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/UBAID0704/PromptFlow-AI-Landing-Page-.git
-```
-
----
-
-## Navigate to Project
-
-```bash
 cd ai-landing-page
 ```
 
----
-
-## Install Dependencies
-
-### Frontend
+### 2. Install Dependencies
 
 ```bash
+# Install frontend & backend dependencies
 npm install
-```
-
-### Backend
-
-```bash
-npm install express cors jsonwebtoken
+npm install express cors jsonwebtoken bcryptjs
 ```
 
 ---
 
-# ▶ Running the Application
+## ▶ Running the Application
 
-Open **two separate terminals**.
+To run the full-stack system, open **two separate terminal windows** in VS Code:
 
-## Terminal 1 — Backend
+### Terminal 1: Express Backend API
 
 ```bash
 node server/index.js
 ```
 
-Server runs at:
+> **Output:** 🚀 Server running at http://localhost:5000
 
-```
-http://localhost:5000
-```
-
----
-
-## Terminal 2 — Frontend
+### Terminal 2: React Frontend App
 
 ```bash
 npm run dev
 ```
 
-Frontend runs at:
+> **Output:** VITE ready → Local: http://localhost:5173/
+
+---
+
+## 🖥️ Real-Time Terminal Activity Logs
+
+While `node server/index.js` is running in Terminal 1, all authentication and management actions print live activity blocks directly to the console:
 
 ```
-http://localhost:5173
+========================================
+🔑 [USER LOGGED IN]
+👤 User: Ubaidullah (ubaid@example.com)
+⏰ Time: 8:45:12 PM
+📊 Total Active Sessions: 1
+========================================
+
+📝 [RECORD UPDATED] ID #1 by Admin Console
+🚪 [USER LOGGED OUT] User: Ubaidullah (ubaid@example.com)
 ```
 
 ---
 
-# 🌐 Live Demo
+## 🎓 Learning Outcomes
 
-**Vercel Deployment**
+**Frontend Development:** React.js, Component-Based Architecture, Responsive Web Design, Reusable UI Components, Modern CSS Layouts
 
-https://prompt-flow-ai-landing-page.vercel.app
+**API Integration:** REST APIs, Fetch API, Dynamic Rendering, Search & Filtering, Loading & Error States
 
-The deployed application includes:
+**Full Stack Development:** Express.js Backend, CRUD Operations, JWT Authentication, Protected Routes, Role-Based Access, RESTful API Design
 
-- ✅ Responsive Landing Page
-- ✅ AI Feature Showcase
-- ✅ Hugging Face API Integration
-- ✅ AI Model Explorer
-- ✅ Community Review System
-- ✅ Admin Moderation Panel
-- ✅ JWT Authentication
-- ✅ CRUD Operations
-- ✅ Responsive Design
+**Software Engineering:** Project Structure, State Management, Authentication Flow, Error Handling, Clean Code Organization
 
 ---
+
+## 🔮 Future Improvements
+
+- AI-powered content generation
+- AI writing playground
+- Database-backed user authentication
+- Cloud database integration
+- AI chatbot assistant
+- Advanced AI model filtering
+- User profiles
+- Admin analytics dashboard
+- Review moderation history
+- Image generation support
+- Bookmark favorite AI models
+
+---
+
+## 👨‍💻 Author
+
+**Ubaidullah**
+Computer Science Student — FAST NUCES
+**GitHub:** [github.com/UBAID0704](https://github.com/UBAID0704)
+
+---
+
+## 📄 License
+
+This project was developed for educational purposes and as part of a Full Stack Internship assessment.
 
 # 📸 Screenshots
 
@@ -503,6 +319,15 @@ The deployed application includes:
 
 <img width="1170" height="529" alt="image" src="https://github.com/user-attachments/assets/7c90779d-5b42-4bca-9157-a58d9d71dc8d" />
 
+<img width="1267" height="551" alt="image" src="https://github.com/user-attachments/assets/44c12287-8604-4296-b07f-8025ae5f7b46" />
+
+<img width="589" height="523" alt="image" src="https://github.com/user-attachments/assets/bb121531-a955-4b24-bed0-a38ea929ed56" />
+
+<img width="1265" height="628" alt="image" src="https://github.com/user-attachments/assets/d521e1e2-e809-423b-8089-0e54d79a69d5" />
+
+<img width="1264" height="609" alt="image" src="https://github.com/user-attachments/assets/61e7f0e3-64eb-404d-9e56-c27fc2ba6a23" />
+
+
 ---
 
 ## AI Model Explorer
@@ -515,71 +340,6 @@ The deployed application includes:
 
 ---
 
-# 🎓 Learning Outcomes
-
-Throughout these tasks, the project demonstrates:
-
-## Frontend Development
-
-- React.js
-- Component-Based Architecture
-- Responsive Web Design
-- Reusable UI Components
-- Modern CSS Layouts
-
-## API Integration
-
-- REST APIs
-- Fetch API
-- Dynamic Rendering
-- Search & Filtering
-- Loading & Error States
-
-## Full Stack Development
-
-- Express.js Backend
-- CRUD Operations
-- JWT Authentication
-- Protected Routes
-- Role-Based Access
-- RESTful API Design
-
-## Software Engineering
-
-- Project Structure
-- State Management
-- Authentication Flow
-- Error Handling
-- Clean Code Organization
-
----
-
-# 🔮 Future Improvements
-
-Potential enhancements include:
-
-- AI-powered content generation
-- AI writing playground
-- User authentication with database
-- Cloud database integration
-- AI chatbot assistant
-- Advanced AI model filtering
-- User profiles
-- Admin analytics dashboard
-- Review moderation history
-- Image generation support
-- Bookmark favorite AI models
-
----
-
-# 👨‍💻 Author
-
-**Ubaidullah**
-
-Computer Science Student
-
-GitHub:
-https://github.com/UBAID0704
 
 ---
 
