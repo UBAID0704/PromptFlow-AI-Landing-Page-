@@ -1,72 +1,381 @@
-# 🤖 PromptFlow AI - Responsive Landing Page & AI Model Explorer
+# 🤖 PromptFlow AI — Full Stack Internship Project
 
-A modern and responsive AI-powered product experience built using **React.js** and **Vite**. This project demonstrates frontend engineering skills, component-based architecture, responsive UI design, and API integration with live AI model data.
+A modern, responsive, and full-stack AI-powered web application built using **React.js**, **Vite**, **Express.js**, and **JWT Authentication**. This project was completed as part of a **Full Stack Internship** and demonstrates frontend development, API integration, CRUD operations, authentication, and responsive UI/UX design.
 
-The project was developed as part of a **Full Stack Internship assessment** and completed in two phases:
+The project was completed in multiple phases:
 
-- **Task 1:** Responsive AI Landing Page (Frontend Only)
-- **Task 2:** API Integration with Hugging Face AI Models
+- **Week 1 – Task 1:** Consume a Public API (Responsive AI Landing Page)
+- **Week 1 – Task 2:** Responsive UI From a Design Brief (Hugging Face API Integration)
+- **Week 2 – Task 1:** Full CRUD: Frontend Talking to Your Own Backend (AI Model Ratings & Admin Moderation Panel)
 
 ---
 
 # 📌 Project Overview
 
-PromptFlow AI is a modern AI product landing page designed to showcase AI-powered features such as:
+PromptFlow AI is an AI-focused web application designed to showcase AI-powered tools while allowing users to explore AI models and share community feedback.
 
-- ✍️ Content Writer
-- 💻 Code Assistant
-- 📝 Summarizer
+The project evolved from a static landing page into a full-stack application featuring:
 
-The first phase focused on building a clean and responsive user interface using React.js.
+- Responsive AI landing page
+- Live AI model explorer
+- Community AI model ratings
+- Admin moderation dashboard
+- JWT-secured CRUD operations
+- REST API integration
+- Responsive modern UI
 
-The second phase enhanced the application by integrating the Hugging Face API to fetch and display live AI model information dynamically.
+---
 
-The final application combines:
+# 🚀 Week 1 – Task 1: Responsive AI Landing Page
 
-- Modern responsive UI
-- Component-driven architecture
-- API-based dynamic content
-- Loading and error handling
+## 🎯 Objective
+
+Build a modern and fully responsive landing page for an AI product using React.js while following component-based architecture and responsive design principles.
+
+---
+
+## ✨ Features
+
+- Responsive Navigation Bar
+- Hero Section
+- AI Feature Showcase
+- Pricing Plans
+- Contact Section
+- Footer
+- Mobile-first responsive layout
+- Reusable React components
+- Modern glassmorphism UI
+
+---
+
+## 🛠 Technologies Used
+
+### Frontend
+
+- React.js
+- Vite
+- JavaScript (ES6+)
+- HTML5
+- CSS3
+
+---
+
+## 📂 Component Structure
+
+```
+src/
+
+├── App.jsx
+├── main.jsx
+├── index.css
+├── Navbar.jsx
+├── Hero.jsx
+├── Features.jsx
+├── Pricing.jsx
+├── Contact.jsx
+└── Footer.jsx
+```
+
+---
+
+## 🚀 Learning Outcomes
+
+- React component architecture
+- Responsive UI development
+- Mobile-first design
+- Reusable component design
+- Modern frontend workflow using Vite
+
+---
+
+# 🤖 Week 1 – Task 2: Hugging Face AI Model Explorer
+
+## 🎯 Objective
+
+Enhance the landing page by integrating a public API to display live AI model information dynamically.
+
+---
+
+## ✨ Features
+
+- Fetch AI models from Hugging Face API
+- Dynamic rendering
 - Search/filter functionality
+- Loading state
+- Error handling
+- Responsive model cards
 
 ---
 
-# 📌 Task 1: Responsive AI Landing Page
+## 📂 Additional Component
 
-## Objective
+```
+AiModelsList.jsx
+```
 
-The goal of Task 1 was to build a fully responsive landing page for an AI-powered product without backend integration.
+Responsible for:
 
-The focus was on:
-
-- Building reusable React components
-- Creating a consistent design system
-- Implementing responsive layouts
-- Following modern UI/UX principles
-- Deploying a production-ready frontend application
+- Fetching AI model data
+- Managing loading state
+- Handling API errors
+- Filtering models
+- Rendering dynamic content
 
 ---
 
-# 🚀 Framework Choice
+## 🔄 Data Flow
 
-## React.js + Vite
+```
+User
 
-This project uses **React.js** with **Vite** as the development environment.
+↓
 
-## Why React.js?
+React Component
 
-- Component-based architecture
-- Reusable UI components
-- Better scalability and maintainability
-- Efficient development workflow
-- Industry-standard frontend library
+↓
 
-## Why Vite?
+Fetch API
 
-- Fast development server
-- Instant Hot Module Replacement (HMR)
-- Optimized production builds
-- Lightweight and modern tooling
+↓
+
+Hugging Face API
+
+↓
+
+JSON Response
+
+↓
+
+Dynamic UI Rendering
+```
+
+---
+
+## 🚀 Skills Demonstrated
+
+- REST API Integration
+- Fetch API
+- React Hooks
+- useState
+- useEffect
+- Dynamic rendering
+- State management
+- Error handling
+
+---
+
+# ⭐ Week 2 – Task 1: AI Model Ratings & Admin Moderation Panel
+
+## 🎯 Objective
+
+Transform the application into a secure full-stack system by adding CRUD functionality, public reviews, administrator moderation, and JWT authentication.
+
+---
+
+# 🌟 Public Review Interface
+
+Implemented inside:
+
+```
+CrudDashboard.jsx
+```
+
+Features include:
+
+- Submit AI model ratings
+- Interactive 1–5 star selector
+- Leave community feedback
+- View public reviews
+- Scrollable review feed
+- Read-only interface for visitors
+
+Public users can:
+
+- Create reviews
+- View reviews
+
+Public users cannot:
+
+- Edit reviews
+- Delete reviews
+
+---
+
+# 🔒 Admin Moderation Panel
+
+Implemented inside:
+
+```
+AdminPanel.jsx
+```
+
+Features include:
+
+- Admin login
+- Password-protected dashboard
+- JWT authentication
+- Review moderation
+- Edit reviews
+- Delete reviews
+- Persistent login using localStorage
+
+---
+
+# 🛡 Backend Security
+
+Implemented using:
+
+- Express.js
+- JSON Web Token (JWT)
+
+Protected Routes:
+
+- PUT
+- DELETE
+
+Authentication Middleware verifies:
+
+- Bearer Token
+- Authorized administrator access
+
+Unauthorized users cannot modify or remove any review.
+
+---
+
+# ⚙ Backend Features
+
+- Express Server
+- JWT Authentication
+- REST API
+- CRUD Operations
+- Authentication Middleware
+- Protected Endpoints
+- Safe JSON Parsing
+- Error Handling
+
+---
+
+# 📂 Project Structure
+
+```text
+AI-LANDING-PAGE/
+│
+├── server/
+│   └── index.js
+│       # Express backend with CRUD APIs, JWT authentication, and protected routes
+│
+├── src/
+│   ├── AdminPanel.jsx
+│   │   # Protected admin dashboard for review moderation
+│   │
+│   ├── AiModelsList.jsx
+│   │   # Fetches and displays AI models from the Hugging Face API
+│   │
+│   ├── App.jsx
+│   │   # Main application layout and routing between components
+│   │
+│   ├── Contact.jsx
+│   │   # Contact section
+│   │
+│   ├── CrudDashboard.jsx
+│   │   # Public AI model ratings and feedback interface
+│   │
+│   ├── Features.jsx
+│   │   # AI feature showcase
+│   │
+│   ├── Footer.jsx
+│   │   # Footer section
+│   │
+│   ├── Hero.jsx
+│   │   # Hero banner and call-to-action
+│   │
+│   ├── index.css
+│   │   # Global styles and responsive design
+│   │
+│   ├── main.jsx
+│   │   # React application entry point
+│   │
+│   ├── Navbar.jsx
+│   │   # Responsive navigation bar
+│   │
+│   └── Pricing.jsx
+│       # Pricing plans section
+│
+├── index.html
+│   # Main HTML template
+│
+├── package.json
+│   # Project metadata, dependencies, and scripts
+│
+├── package-lock.json
+│   # Automatically generated dependency lock file
+│
+└── README.md
+    # Project documentation
+```
+
+# 🔑 Admin Credentials
+
+| Role | Password | Permissions |
+|------|----------|-------------|
+| Admin | admin123 | Full CRUD Access |
+| Public User | None | Create & Read Only |
+
+---
+
+# 🌐 API Endpoints
+
+| Method | Endpoint | Access | Description |
+|---------|----------|--------|-------------|
+| GET | /api/contacts | Public | Retrieve all reviews |
+| POST | /api/contacts | Public | Submit a review |
+| POST | /api/admin/login | Public | Authenticate administrator |
+| PUT | /api/contacts/:id | Admin | Update review |
+| DELETE | /api/contacts/:id | Admin | Delete review |
+
+---
+
+# 🎨 Design System
+
+The application follows a consistent visual design system.
+
+## Layout
+
+- CSS Flexbox
+- CSS Grid
+- Responsive Breakpoints
+- Mobile-first Design
+
+## Typography
+
+- Clear hierarchy
+- Consistent spacing
+- Readable text
+
+## UI Style
+
+- Modern AI-inspired interface
+- Dark theme
+- Glassmorphism effects
+- Interactive cards
+- Smooth layouts
+
+---
+
+# 📱 Responsive Design
+
+Optimized for:
+
+- 📱 Mobile
+- 📱 Tablet
+- 💻 Desktop
+
+Implemented using:
+
+- Flexible layouts
+- CSS Media Queries
+- Responsive spacing
+- Adaptive components
 
 ---
 
@@ -80,221 +389,21 @@ This project uses **React.js** with **Vite** as the development environment.
 - HTML5
 - CSS3
 
-## API Integration
+## Backend
 
-- Hugging Face Public API
+- Express.js
+- Node.js
+- JSON Web Token (JWT)
+- CORS
+
+## API
+
+- Hugging Face Models API
 - Fetch API
-- React Hooks:
-  - useState
-  - useEffect
 
 ---
 
-# 📂 Project Structure
-
-```
-ai-landing-page/
-
-├── src/
-│
-│   ├── App.jsx
-│   │   # Application core hub and layout coordinator
-│
-│   ├── main.jsx
-│   │   # React DOM root mounting file
-│
-│   ├── index.css
-│   │   # Global typography and styling rules
-│
-│   ├── Navbar.jsx
-│   │   # Responsive navigation component
-│
-│   ├── Hero.jsx
-│   │   # Main product introduction and CTA section
-│
-│   ├── Features.jsx
-│   │   # AI feature showcase:
-│   │   # Content Writer, Code Assistant, Summarizer
-│
-│   ├── AiModelsList.jsx
-│   │   # Task 2 API integration component
-│   │   # Fetches and displays live AI model data
-│
-│   ├── Pricing.jsx
-│   │   # Subscription pricing section
-│
-│   ├── Contact.jsx
-│   │   # Contact section and form layout
-│
-│   └── Footer.jsx
-│       # Footer and copyright section
-│
-├── index.html
-│   # Main HTML entry point
-│
-├── package.json
-│   # Project dependencies and scripts
-│
-└── README.md
-    # Project documentation
-```
-
----
-
-# 🧩 Component Overview
-
-## Navbar
-
-Provides responsive navigation and allows users to quickly access different sections of the landing page.
-
-## Hero
-
-Displays the main product message, description, and call-to-action buttons.
-
-## Features
-
-Showcases the core PromptFlow AI capabilities:
-
-- Content Writer
-- Code Assistant
-- Summarizer
-
-## AiModelsList
-
-Implemented as part of Task 2.
-
-This component connects with the Hugging Face API and displays live AI model information.
-
-Features include:
-
-- API data fetching
-- Dynamic rendering
-- Loading state
-- Error handling
-- Search functionality
-
-## Pricing
-
-Displays subscription plans using a clean card-based layout.
-
-## Contact
-
-Provides contact information and user interaction options.
-
-## Footer
-
-Contains copyright information and additional navigation elements.
-
----
-
-# 📌 Task 2: API Integration with Hugging Face
-
-## Objective
-
-The objective of Task 2 was to transform a static frontend application into a dynamic application by consuming data from a public API.
-
-The project integrates the **Hugging Face Models API** to retrieve live AI model information and display it inside the PromptFlow AI interface.
-
----
-
-# 🤖 Explore AI Models Behind PromptFlow
-
-A new section was added:
-
-## "Explore the AI Models Behind PromptFlow"
-
-This section displays AI model information related to:
-
-- ✍️ Content Generation
-- 💻 Code Assistance
-- 📝 Text Summarization
-
-The purpose of this feature is to demonstrate real-world API integration and dynamic data rendering in React.
-
----
-
-# 🔗 API Integration Features
-
-Implemented features:
-
-✅ Fetch live AI model data from Hugging Face API  
-✅ Display dynamic API responses  
-✅ Loading state handling  
-✅ Friendly error messages  
-✅ Search/filter functionality  
-✅ Responsive AI model cards  
-
----
-
-# 🔄 Application Data Flow
-
-```
-User
- |
- |
-React Component (AiModelsList.jsx)
- |
- |
-Fetch API Request
- |
- |
-Hugging Face API
- |
- |
-AI Model Data Response
- |
- |
-Dynamic UI Rendering
-```
-
----
-
-# 🎨 Design System
-
-The application follows a consistent visual design system.
-
-## Layout
-
-Implemented using:
-
-- CSS Flexbox
-- CSS Grid
-- Responsive breakpoints
-- Mobile-first design principles
-
-## Typography
-
-- Clear heading hierarchy
-- Readable body text
-- Consistent font sizing
-
-## Visual Style
-
-- Modern AI-inspired interface
-- Dark theme aesthetics
-- Glassmorphism design elements
-- Clear visual hierarchy
-
----
-
-# 📱 Responsive Design
-
-The application is optimized for:
-
-- 📱 Mobile devices
-- 📱 Tablets
-- 💻 Desktop screens
-
-Responsive behavior is achieved using:
-
-- Flexible layouts
-- CSS media queries
-- Responsive spacing
-- Adaptive components
-
----
-
-# ⚙️ Installation & Setup
+# 🚀 Installation
 
 ## Clone Repository
 
@@ -302,25 +411,57 @@ Responsive behavior is achieved using:
 git clone https://github.com/UBAID0704/PromptFlow-AI-Landing-Page-.git
 ```
 
-## Navigate to Project Folder
+---
+
+## Navigate to Project
 
 ```bash
 cd ai-landing-page
 ```
 
+---
+
 ## Install Dependencies
+
+### Frontend
 
 ```bash
 npm install
 ```
 
-## Start Development Server
+### Backend
+
+```bash
+npm install express cors jsonwebtoken
+```
+
+---
+
+# ▶ Running the Application
+
+Open **two separate terminals**.
+
+## Terminal 1 — Backend
+
+```bash
+node server/index.js
+```
+
+Server runs at:
+
+```
+http://localhost:5000
+```
+
+---
+
+## Terminal 2 — Frontend
 
 ```bash
 npm run dev
 ```
 
-Open the application:
+Frontend runs at:
 
 ```
 http://localhost:5173
@@ -330,79 +471,104 @@ http://localhost:5173
 
 # 🌐 Live Demo
 
-The project is deployed using **Vercel**.
-
-🚀 Application Demo:
+**Vercel Deployment**
 
 https://prompt-flow-ai-landing-page.vercel.app
 
-The live application includes:
+The deployed application includes:
 
-- ✅ Responsive AI Landing Page
-- ✅ AI product feature sections
-- ✅ Hugging Face API integration
-- ✅ Dynamic AI Model Explorer
-- ✅ Loading and error handling
-- ✅ Search/filter functionality
+- ✅ Responsive Landing Page
+- ✅ AI Feature Showcase
+- ✅ Hugging Face API Integration
+- ✅ AI Model Explorer
+- ✅ Community Review System
+- ✅ Admin Moderation Panel
+- ✅ JWT Authentication
+- ✅ CRUD Operations
+- ✅ Responsive Design
 
 ---
 
 # 📸 Screenshots
 
-## AI Landing Page
+## Responsive AI Landing Page
 
-<img width="1200" height="615" alt="image" src="https://github.com/user-attachments/assets/d33a92b1-0d32-419f-84ea-e816d88bc846" />
-<img width="1204" height="523" alt="image" src="https://github.com/user-attachments/assets/a585d641-4da6-4acf-97fd-290ff1793eb6" />
+<img width="1200" height="615" alt="Landing Page" src="https://github.com/user-attachments/assets/d33a92b1-0d32-419f-84ea-e816d88bc846" />
 
+<img width="1204" height="523" alt="Landing Page" src="https://github.com/user-attachments/assets/a585d641-4da6-4acf-97fd-290ff1793eb6" />
 
+<img width="1211" height="614" alt="image" src="https://github.com/user-attachments/assets/8a131724-81c9-471c-bd89-834cad0a2f6d" />
 
-## AI Model Explorer
+<img width="1166" height="616" alt="image" src="https://github.com/user-attachments/assets/dfcf8549-0a7a-4d20-8acf-fd5355b90f9b" />
 
-<img width="1247" height="622" alt="image" src="https://github.com/user-attachments/assets/b2d03992-885b-47fa-8db7-90c9ed87d46a" />
-<img width="1262" height="611" alt="image" src="https://github.com/user-attachments/assets/2dacab5f-6bb0-44bb-afa9-2cf8f10a07c0" />
-<img width="1243" height="608" alt="image" src="https://github.com/user-attachments/assets/b915d5b7-3428-44a6-b9f6-0832896b1c95" />
-
+<img width="1170" height="529" alt="image" src="https://github.com/user-attachments/assets/7c90779d-5b42-4bca-9157-a58d9d71dc8d" />
 
 ---
 
-# 🎯 Learning Outcomes
+## AI Model Explorer
 
-## Task 1
+<img width="1247" height="622" alt="AI Models" src="https://github.com/user-attachments/assets/b2d03992-885b-47fa-8db7-90c9ed87d46a" />
 
-This project demonstrates:
+<img width="1262" height="611" alt="AI Models" src="https://github.com/user-attachments/assets/2dacab5f-6bb0-44bb-afa9-2cf8f10a07c0" />
 
-- React component-based development
-- Responsive frontend development
-- Reusable UI component creation
-- Design system implementation
-- Vite development workflow
-- Vercel deployment
+<img width="1243" height="608" alt="AI Models" src="https://github.com/user-attachments/assets/b915d5b7-3428-44a6-b9f6-0832896b1c95" />
 
-## Task 2
+---
 
-This project demonstrates:
+# 🎓 Learning Outcomes
 
-- REST API integration
-- Fetching external data
-- Dynamic UI rendering
-- React state management
-- Loading and error handling
-- Search/filter implementation
+Throughout these tasks, the project demonstrates:
+
+## Frontend Development
+
+- React.js
+- Component-Based Architecture
+- Responsive Web Design
+- Reusable UI Components
+- Modern CSS Layouts
+
+## API Integration
+
+- REST APIs
+- Fetch API
+- Dynamic Rendering
+- Search & Filtering
+- Loading & Error States
+
+## Full Stack Development
+
+- Express.js Backend
+- CRUD Operations
+- JWT Authentication
+- Protected Routes
+- Role-Based Access
+- RESTful API Design
+
+## Software Engineering
+
+- Project Structure
+- State Management
+- Authentication Flow
+- Error Handling
+- Clean Code Organization
 
 ---
 
 # 🔮 Future Improvements
 
-Possible future enhancements:
+Potential enhancements include:
 
-- Real AI content generation
+- AI-powered content generation
 - AI writing playground
-- Code execution assistant
-- Backend API integration
-- User authentication
-- Database integration
+- User authentication with database
+- Cloud database integration
+- AI chatbot assistant
 - Advanced AI model filtering
-- User dashboard
+- User profiles
+- Admin analytics dashboard
+- Review moderation history
+- Image generation support
+- Bookmark favorite AI models
 
 ---
 
@@ -413,11 +579,10 @@ Possible future enhancements:
 Computer Science Student
 
 GitHub:
-
 https://github.com/UBAID0704
 
 ---
 
 # 📄 License
 
-This project was developed for educational and internship assessment purposes.
+This project was developed for educational purposes and as part of a Full Stack Internship assessment.
