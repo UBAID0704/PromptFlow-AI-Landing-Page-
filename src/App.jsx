@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from "./Navbar.jsx";
 import Hero from "./Hero.jsx";
 import Features from "./Features.jsx";
-import AiModelsList from "./AiModelsList.jsx"; // 1. Import it here
+import AiModelsList from "./AiModelsList.jsx";
+import CrudDashboard from "./CrudDashboard.jsx";
+import AdminPanel from "./AdminPanel.jsx";
 import Pricing from "./Pricing.jsx";
 import Contact from "./Contact.jsx";
 import Footer from "./Footer.jsx";
 
 function App() {
+  const [isAdminView, setIsAdminView] = useState(false);
+
   return (
     <div className="app-container">
       <Navbar />
@@ -20,8 +24,14 @@ function App() {
         <Features />
       </div>
 
-      {/* 2. Insert it right here under your AI features */}
-      <AiModelsList /> 
+      <AiModelsList />
+
+      {/* Conditionally render Public Review view or Admin Panel */}
+      {isAdminView ? (
+        <AdminPanel onSwitchToPublic={() => setIsAdminView(false)} />
+      ) : (
+        <CrudDashboard onSwitchToAdmin={() => setIsAdminView(true)} />
+      )}
 
       <div id="pricing">
         <Pricing />
