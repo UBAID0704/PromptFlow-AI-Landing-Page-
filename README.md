@@ -1,25 +1,27 @@
 # 🤖 PromptFlow AI — Full Stack Internship Project
 
-A modern, responsive, full-stack AI-powered web application built using **React.js**, **Vite**, **Express.js**, **bcrypt.js**, and **JWT Authentication**. This project was completed as part of a **Full Stack Internship** and demonstrates modern frontend development, REST API integration, CRUD operations, secure authentication, route guarding, and responsive UI/UX design.
+A modern, responsive, full-stack AI-powered web application built using **React.js**, **Vite**, **Express.js**, **bcrypt.js**, **multer**, and **JWT Authentication**. This project was completed as part of a **Full Stack Internship** and demonstrates modern frontend development, REST API integration, CRUD operations, secure authentication, route guarding, form validation, file uploads, and responsive UI/UX design.
 
-The project evolved across four key milestones:
+The project evolved across five key milestones:
 
 - **Week 1 – Task 1:** Consume a Public API (Responsive AI Landing Page)
 - **Week 1 – Task 2:** Responsive UI From a Design Brief (Hugging Face API Integration)
 - **Week 2 – Task 1:** Full CRUD: Frontend Talking to Your Own Backend (AI Model Ratings & Admin Moderation Panel)
 - **Week 2 – Task 2:** Authentication Flow (Signup, Login, Password Hashing, & Protected Routes)
+- **Week 3 – Task 1:** Forms, Validation & Real User Feedback (Multi-Field Form, File Uploads, Dual Validation)
 
 ---
 
 ## 📌 Project Overview
 
-**PromptFlow AI** is a full-stack platform designed to showcase live AI models, collect community ratings, and provide authenticated user accounts along with administrative moderation capabilities.
+**PromptFlow AI** is a full-stack platform designed to showcase live AI models, collect community ratings, gather detailed user feedback with attachments, and provide authenticated user accounts along with administrative moderation capabilities.
 
 The platform includes:
 
 - Responsive AI landing page with interactive UI sections
 - Live AI model explorer powered by the Hugging Face API
 - Community review and rating submission system
+- Multi-field user feedback form with file upload support
 - Password-protected Admin Moderation Console
 - Secure User Authentication System (Signup, Login, & Session Management)
 - JWT-secured API routes with bcrypt.js password hashing
@@ -127,6 +129,45 @@ Implement real user account management on the frontend and backend, with secure 
 
 ---
 
+## 📝 Week 3 – Task 1: Forms, Validation & Real User Feedback
+
+### 🎯 Objective
+
+Build a multi-field form connected to the backend with strict dual-layer validation (client & server), file upload capabilities, loading states, and toast notifications.
+
+### ✨ Features & Implementation
+
+- **6 Input Fields (`UserFeedbackForm.jsx`):**
+  1. `Full Name` — Text input, minimum 3 characters
+  2. `Email Address` — Email input with regex validation
+  3. `Category` — Dropdown `<select>` menu
+  4. `Experience Date` — Date picker, blocks future dates
+  5. `Attachment` — File input accepting `.png`, `.jpg`, `.jpeg`, and `.pdf` up to 5MB
+  6. `Comments` — Textarea, minimum 10 characters
+
+- **Dual-Layer Field Validation:**
+  - **Client-Side:** Checks inputs instantly on submit and displays field-specific error messages directly under failing inputs.
+  - **Server-Side Guard:** The Express server re-validates all payload fields. Never trusts frontend input alone and returns structured HTTP `400` errors if bypassed.
+
+- **Multipart File Storage (`multer`):** Handles image/document uploads via `multer` middleware, storing them in `./uploads` and serving them statically.
+
+- **UI Feedback & Loading States:**
+  - Submit button disables during request processing (`isSubmitting`) to prevent double submission.
+  - Features an inline spinning loading indicator.
+  - Displays success or error toast banners above the form upon completion.
+
+- **Unified Community Hub (`CrudDashboard.jsx`):** Combines the Week 2 Quick Reviews and Week 3 Detailed Form into a tabbed section (`⭐ Public Reviews` vs `📝 Report an Issue & Uploads`).
+
+### 🚀 Skills Demonstrated
+
+- Multi-field form design & React controlled inputs
+- Client-side and server-side validation
+- File upload handling with `multer`
+- Middleware-based request guarding
+- Async loading states & toast notification UX
+
+---
+
 ## 📂 Complete Project Structure
 
 ```
@@ -136,29 +177,31 @@ AI-LANDING-PAGE/
 ├── node_modules/
 │
 ├── server/
-│   └── index.js            # Express backend handling Auth, JWT verification, bcrypt,
-│                            # active session logging, and CRUD API endpoints
+│   ├── uploads/             # Static file storage directory for feedback attachments (NEW)
+│   └── index.js             # Express backend with JWT auth, bcrypt, multer file processing,
+│                             # dual-validation guards, and terminal logging (UPDATED)
 │
 ├── src/
-│   ├── AdminPanel.jsx       # Protected admin moderation panel
-│   ├── AiModelsList.jsx     # Live model explorer using Hugging Face API
-│   ├── App.jsx              # Root layout, view router, and route guard logic
-│   ├── AuthModal.jsx        # Client-validated Signup & Login form component
-│   ├── Contact.jsx          # Contact section
-│   ├── CrudDashboard.jsx    # Public rating & review submission panel
-│   ├── Dashboard.jsx        # Protected user workspace route
-│   ├── Features.jsx         # AI product features showcase
-│   ├── Footer.jsx           # Platform footer
-│   ├── Hero.jsx             # Hero section banner
-│   ├── index.css            # Global dark-theme styles & glassmorphism
-│   ├── main.jsx             # React entry point
-│   ├── Navbar.jsx           # Navigation bar with dynamic Auth & Dashboard links
-│   └── Pricing.jsx          # Subscription pricing tiers
+│   ├── AdminPanel.jsx        # Protected admin moderation panel
+│   ├── AiModelsList.jsx      # Live model explorer using Hugging Face API
+│   ├── App.jsx               # Root layout, view router, and route guard logic
+│   ├── AuthModal.jsx         # Client-validated Signup & Login modal form
+│   ├── Contact.jsx           # Contact section
+│   ├── CrudDashboard.jsx     # Unified Community Hub & Support Center with tabs (UPDATED)
+│   ├── Dashboard.jsx         # Protected user workspace route
+│   ├── Features.jsx          # AI product features showcase
+│   ├── Footer.jsx            # Platform footer
+│   ├── Hero.jsx              # Hero section banner
+│   ├── index.css             # Global dark-theme styles & glassmorphism
+│   ├── main.jsx               # React entry point
+│   ├── Navbar.jsx             # Streamlined navigation bar (UPDATED)
+│   ├── Pricing.jsx            # Subscription pricing tiers
+│   └── UserFeedbackForm.jsx   # Multi-field feedback form with file upload & validation (NEW)
 │
-├── index.html               # Main HTML entry point
-├── package.json             # Dependencies (express, cors, jsonwebtoken, bcryptjs, vite, react)
-├── package-lock.json        # Automatically generated dependency lock file
-└── README.md                # Project documentation
+├── index.html                 # Main HTML entry point
+├── package.json               # Dependencies (express, cors, jsonwebtoken, bcryptjs, multer, vite, react)
+├── package-lock.json          # Automatically generated dependency lock file
+└── README.md                  # Project documentation
 ```
 
 ---
@@ -167,7 +210,7 @@ AI-LANDING-PAGE/
 
 | Role | Access Method / Password | Permissions |
 |------|---------------------------|-------------|
-| **Public Visitor** | None | Submit ratings & read community feedback |
+| **Public Visitor** | None | Submit ratings & feedback, read community feedback |
 | **Registered User** | Created via Signup | Access protected `/dashboard` & session persistence |
 | **Administrator** | Password: `admin123` | Full CRUD access (Create, Read, Update, Delete) |
 
@@ -179,6 +222,7 @@ AI-LANDING-PAGE/
 |--------|----------|---------------|--------------|
 | GET | `/api/contacts` | Public | Retrieve all community ratings & messages |
 | POST | `/api/contacts` | Public | Submit new feedback record |
+| POST | `/api/feedback` | Public | Submit multi-field feedback form with optional file attachment (multer, dual validation) |
 | POST | `/api/auth/signup` | Public | Register new user account with hashed password |
 | POST | `/api/auth/login` | Public | Authenticate user & issue signed JWT |
 | POST | `/api/auth/logout` | User | Clear session from active tracking |
@@ -201,7 +245,7 @@ AI-LANDING-PAGE/
 ## 🛠 Technologies Used
 
 **Frontend:** React.js, Vite, JavaScript (ES6+), HTML5, CSS3
-**Backend:** Express.js, Node.js, JSON Web Token (JWT), bcrypt.js, CORS
+**Backend:** Express.js, Node.js, JSON Web Token (JWT), bcrypt.js, multer, CORS
 **API:** Hugging Face Models API, Fetch API
 
 ---
@@ -220,7 +264,7 @@ cd ai-landing-page
 ```bash
 # Install frontend & backend dependencies
 npm install
-npm install express cors jsonwebtoken bcryptjs
+npm install express cors jsonwebtoken bcryptjs multer
 ```
 
 ---
@@ -261,6 +305,7 @@ While `node server/index.js` is running in Terminal 1, all authentication and ma
 
 📝 [RECORD UPDATED] ID #1 by Admin Console
 🚪 [USER LOGGED OUT] User: Ubaidullah (ubaid@example.com)
+📎 [FEEDBACK SUBMITTED] Attachment uploaded: report-screenshot.png
 ```
 
 ---
@@ -272,6 +317,8 @@ While `node server/index.js` is running in Terminal 1, all authentication and ma
 **API Integration:** REST APIs, Fetch API, Dynamic Rendering, Search & Filtering, Loading & Error States
 
 **Full Stack Development:** Express.js Backend, CRUD Operations, JWT Authentication, Protected Routes, Role-Based Access, RESTful API Design
+
+**Forms & Validation:** Multi-Field Form Design, Client & Server-Side Validation, File Uploads with Multer, Loading States & Toast Notifications
 
 **Software Engineering:** Project Structure, State Management, Authentication Flow, Error Handling, Clean Code Organization
 
@@ -327,7 +374,6 @@ This project was developed for educational purposes and as part of a Full Stack 
 
 <img width="1264" height="609" alt="image" src="https://github.com/user-attachments/assets/61e7f0e3-64eb-404d-9e56-c27fc2ba6a23" />
 
-
 ---
 
 ## AI Model Explorer
@@ -337,9 +383,6 @@ This project was developed for educational purposes and as part of a Full Stack 
 <img width="1262" height="611" alt="AI Models" src="https://github.com/user-attachments/assets/2dacab5f-6bb0-44bb-afa9-2cf8f10a07c0" />
 
 <img width="1243" height="608" alt="AI Models" src="https://github.com/user-attachments/assets/b915d5b7-3428-44a6-b9f6-0832896b1c95" />
-
----
-
 
 ---
 
