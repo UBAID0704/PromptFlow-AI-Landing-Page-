@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const app = express();
 const PORT = 5000;
@@ -10,18 +13,50 @@ const JWT_SECRET = 'your_super_secret_jwt_key_2026';
 app.use(cors());
 app.use(express.json());
 
-// --- IN-MEMORY DATABASES ---
+// Ensure uploads folder exists
+const uploadsDir = './uploads';
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+app.use('/uploads', express.static('uploads'));
+
+// Multer Storage Configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedExtensions = /jpeg|jpg|png|pdf/;
+    const extName = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
+    const mimeType = allowedExtensions.test(file.mimetype);
+
+    if (extName && mimeType) {
+      return cb(null, true);
+    }
+    cb(new Error('Only PNG, JPG, JPEG, and PDF files are allowed.'));
+  }
+});
+
+// In-Memory Databases
 const users = [];
-let activeSessions = []; // Tracks currently logged-in active sessions
+let activeSessions = [];
+let feedbackSubmissions = [];
 let contacts = [
   { id: 1, name: "Sahil", email: "5 Stars ⭐", message: "Love the dark UI theme!" },
   { id: 2, name: "Alex", email: "5 Stars ⭐", message: "Interested in the Pro subscription plan." }
 ];
 
-// Helper delay
 const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
-// --- MIDDLEWARE: VERIFY TOKEN (User or Admin) ---
+// Middleware: Verify Token
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -38,9 +73,101 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// --- AUTH ROUTES WITH REAL-TIME TERMINAL LOGGING ---
+// --- WEEK 3 TASK 1: MULTI-FIELD FEEDBACK ENDPOINT ---
+app.post('/api/feedback', (req, res, next) => {
+  upload.single('attachment')(req, res, (err) => {
+    if (err) {
+      return res.status(400).json({
+        success: false,
+        message: 'File upload error.',
+        fieldErrors: { attachment: err.message }
+      });
+    }
+    next();
+  });
+}, async (req, res) => {
+  await delay(800); // Simulate network latency
 
-// 1. SIGNUP
+  const { fullName, email, category, rating, experienceDate, comments } = req.body;
+  const errors = {};
+
+  // STRICT SERVER-SIDE VALIDATION
+  if (!fullName || fullName.trim().length < 3) {
+    errors.fullName = 'Full Name must be at least 3 characters long.';
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
+    errors.email = 'Please enter a valid email address.';
+  }
+
+  if (!category || category === '') {
+    errors.category = 'Please select a valid feedback category.';
+  }
+
+  const numericRating = Number(rating);
+  if (!rating || numericRating < 1 || numericRating > 5) {
+    errors.rating = 'Rating must be between 1 and 5 stars.';
+  }
+
+  if (!experienceDate) {
+    errors.experienceDate = 'Experience date is required.';
+  } else if (new Date(experienceDate) > new Date()) {
+    errors.experienceDate = 'Experience date cannot be set in the future.';
+  }
+
+  if (!comments || comments.trim().length < 10) {
+    errors.comments = 'Feedback comments must be at least 10 characters long.';
+  }
+
+  if (!req.file) {
+    errors.attachment = 'A file attachment (screenshot or document) is required.';
+  }
+
+  if (Object.keys(errors).length > 0) {
+    console.log(`\n❌ [SERVER VALIDATION REJECTED]`, errors, `\n`);
+    return res.status(400).json({
+      success: false,
+      message: 'Server-side validation failed.',
+      fieldErrors: errors
+    });
+  }
+
+  const newFeedback = {
+    id: Date.now(),
+    fullName,
+    email,
+    category,
+    rating: numericRating,
+    experienceDate,
+    comments,
+    fileUrl: `/uploads/${req.file.filename}`,
+    submittedAt: new Date().toISOString()
+  };
+
+  feedbackSubmissions.push(newFeedback);
+
+  console.log(`\n========================================`);
+  console.log(`📋 [NEW DETAILED FEEDBACK RECEIVED]`);
+  console.log(`👤 Name: ${fullName} (${email})`);
+  console.log(`🏷️ Category: ${category} | ⭐ Rating: ${rating}/5`);
+  console.log(`📅 Date: ${experienceDate}`);
+  console.log(`📁 File Saved: ${req.file.filename}`);
+  console.log(`========================================\n`);
+
+  res.status(201).json({
+    success: true,
+    message: 'Feedback submitted successfully!',
+    data: newFeedback
+  });
+});
+
+app.get('/api/feedback', async (req, res) => {
+  await delay();
+  res.json(feedbackSubmissions);
+});
+
+// --- AUTH ROUTES ---
 app.post('/api/auth/signup', async (req, res) => {
   await delay();
   const { name, email, password } = req.body;
@@ -60,17 +187,8 @@ app.post('/api/auth/signup', async (req, res) => {
 
   const token = jwt.sign({ id: newUser.id, name: newUser.name, email: newUser.email }, JWT_SECRET, { expiresIn: '2h' });
 
-  // Track session
   activeSessions = activeSessions.filter(s => s.userId !== newUser.id);
   activeSessions.push({ userId: newUser.id, name: newUser.name, email: newUser.email, loggedInAt: new Date().toISOString() });
-
-  // REAL-TIME TERMINAL LOG
-  console.log(`\n========================================`);
-  console.log(`✨ [NEW USER REGISTERED & LOGGED IN]`);
-  console.log(`👤 User: ${newUser.name} (${newUser.email})`);
-  console.log(`⏰ Time: ${new Date().toLocaleTimeString()}`);
-  console.log(`📊 Total Active Sessions: ${activeSessions.length}`);
-  console.log(`========================================\n`);
 
   res.status(201).json({
     token,
@@ -78,7 +196,6 @@ app.post('/api/auth/signup', async (req, res) => {
   });
 });
 
-// 2. LOGIN
 app.post('/api/auth/login', async (req, res) => {
   await delay();
   const { email, password } = req.body;
@@ -89,23 +206,13 @@ app.post('/api/auth/login', async (req, res) => {
 
   const user = users.find(u => u.email === email.toLowerCase());
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    console.log(`\n❌ [FAILED LOGIN ATTEMPT] Email: ${email} at ${new Date().toLocaleTimeString()}\n`);
     return res.status(401).json({ error: 'Invalid email or password.' });
   }
 
   const token = jwt.sign({ id: user.id, name: user.name, email: user.email }, JWT_SECRET, { expiresIn: '2h' });
 
-  // Update active sessions tracking
   activeSessions = activeSessions.filter(s => s.userId !== user.id);
   activeSessions.push({ userId: user.id, name: user.name, email: user.email, loggedInAt: new Date().toISOString() });
-
-  // REAL-TIME TERMINAL LOG
-  console.log(`\n========================================`);
-  console.log(`🔑 [USER LOGGED IN]`);
-  console.log(`👤 User: ${user.name} (${user.email})`);
-  console.log(`⏰ Time: ${new Date().toLocaleTimeString()}`);
-  console.log(`📊 Total Active Sessions: ${activeSessions.length}`);
-  console.log(`========================================\n`);
 
   res.json({
     token,
@@ -113,28 +220,17 @@ app.post('/api/auth/login', async (req, res) => {
   });
 });
 
-// 3. LOGOUT (Removes active user from session tracker)
 app.post('/api/auth/logout', verifyToken, (req, res) => {
   if (req.user && req.user.id) {
     activeSessions = activeSessions.filter(s => s.userId !== req.user.id);
-
-    console.log(`\n========================================`);
-    console.log(`🚪 [USER LOGGED OUT]`);
-    console.log(`👤 User: ${req.user.name || 'User'} (${req.user.email || 'N/A'})`);
-    console.log(`⏰ Time: ${new Date().toLocaleTimeString()}`);
-    console.log(`📊 Total Active Sessions Remaining: ${activeSessions.length}`);
-    console.log(`========================================\n`);
   }
-
   res.json({ message: 'Logged out successfully.' });
 });
 
-// 4. PROTECTED ACCOUNT CHECK
 app.get('/api/auth/me', verifyToken, (req, res) => {
   res.json({ user: req.user });
 });
 
-// 5. ADMIN ACTIVE USERS LOG API
 app.get('/api/admin/active-users', (req, res) => {
   res.json({
     totalActiveUsers: activeSessions.length,
@@ -143,7 +239,6 @@ app.get('/api/admin/active-users', (req, res) => {
 });
 
 // --- CONTACTS & ADMIN CRUD ROUTES ---
-
 app.get('/api/contacts', async (req, res) => {
   await delay();
   res.json(contacts);
@@ -160,20 +255,16 @@ app.post('/api/contacts', async (req, res) => {
   res.status(201).json(newContact);
 });
 
-// Admin Authentication Login
 app.post('/api/admin/login', async (req, res) => {
   await delay();
   const { password } = req.body;
   if (password === 'admin123') {
     const token = jwt.sign({ role: 'admin', name: 'Admin Console' }, JWT_SECRET, { expiresIn: '2h' });
-    
-    console.log(`\n🛡️ [ADMIN CONSOLE UNLOCKED] Time: ${new Date().toLocaleTimeString()}\n`);
     return res.json({ success: true, token });
   }
   return res.status(401).json({ error: "Invalid admin password." });
 });
 
-// Admin PUT (Update Record)
 app.put('/api/contacts/:id', verifyToken, async (req, res) => {
   await delay();
   const { id } = req.params;
@@ -181,18 +272,13 @@ app.put('/api/contacts/:id', verifyToken, async (req, res) => {
   const index = contacts.findIndex(c => c.id === parseInt(id));
   if (index === -1) return res.status(404).json({ error: "Record not found." });
   contacts[index] = { ...contacts[index], name, email, message };
-  
-  console.log(`📝 [RECORD UPDATED] ID #${id} by ${req.user.name || req.user.role || 'User'}`);
   res.json(contacts[index]);
 });
 
-// Admin DELETE (Remove Record)
 app.delete('/api/contacts/:id', verifyToken, async (req, res) => {
   await delay();
   const { id } = req.params;
   contacts = contacts.filter(c => c.id !== parseInt(id));
-
-  console.log(`🗑️ [RECORD DELETED] ID #${id} by ${req.user.name || req.user.role || 'User'}`);
   res.json({ message: "Deleted successfully" });
 });
 
