@@ -374,6 +374,13 @@ This project was developed for educational purposes and as part of a Full Stack 
 
 <img width="1264" height="609" alt="image" src="https://github.com/user-attachments/assets/61e7f0e3-64eb-404d-9e56-c27fc2ba6a23" />
 
+<img width="1033" height="617" alt="image" src="https://github.com/user-attachments/assets/945788fa-bc72-4ba1-9d6a-7c87ee54eb09" />
+
+<img width="1078" height="621" alt="image" src="https://github.com/user-attachments/assets/b02f9fdc-d3fc-4f05-9ae9-63c90f07b4ed" />
+
+<img width="1058" height="577" alt="image" src="https://github.com/user-attachments/assets/53fb8466-7f2b-4031-b309-58f1664062cb" />
+
+
 ---
 
 ## AI Model Explorer
