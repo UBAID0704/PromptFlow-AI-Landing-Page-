@@ -1,162 +1,200 @@
 import React, { useState, useEffect } from 'react';
-
-const API_URL = 'http://localhost:5000/api/contacts';
+import UserFeedbackForm from './UserFeedbackForm.jsx';
 
 function CrudDashboard({ onSwitchToAdmin }) {
-  const [items, setItems] = useState([]);
+  const [activeSubTab, setActiveSubTab] = useState('quick'); // 'quick' or 'detailed'
+  
+  // --- QUICK REVIEWS STATE ---
+  const [reviews, setReviews] = useState([]);
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  // Form State
-  const [name, setName] = useState('');
-  const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [message, setMessage] = useState('');
+  const [toast, setToast] = useState(null);
 
   useEffect(() => {
-    fetchItems();
+    fetchReviews();
   }, []);
 
-  const fetchItems = async () => {
-    setLoading(true);
-    setError(null);
+  const fetchReviews = async () => {
     try {
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error('Could not fetch reviews.');
+      const res = await fetch('http://localhost:5000/api/contacts');
       const data = await res.json();
-      setItems(data);
+      setReviews(data);
     } catch (err) {
-      setError(err.message || 'Server error occurred.');
+      console.error('Failed to fetch reviews:', err);
+    }
+  };
+
+  const handleQuickSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email || !formData.message) {
+      setToast({ type: 'error', message: 'All fields are required.' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('http://localhost:5000/api/contacts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      if (!res.ok) throw new Error('Failed to submit review');
+      
+      setToast({ type: 'success', message: 'Review added to community feed!' });
+      setFormData({ name: '', email: '', message: '' });
+      fetchReviews();
+    } catch (err) {
+      setToast({ type: 'error', message: err.message });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!name || !message) return;
-    if (rating === 0) {
-      setError('Please select a star rating before submitting.');
-      return;
-    }
-
-    setActionLoading(true);
-    setError(null);
-
-    const payload = { name, email: `${rating} Stars ⭐`, message };
-
-    try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error('Failed to post review.');
-
-      setName('');
-      setRating(0);
-      setMessage('');
-      await fetchItems();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
   return (
-    <section style={{ padding: '3rem 2rem', color: '#fff', textAlign: 'center' }}>
-      <div className="features-header">
-        <span className="hero-tag" style={{ background: 'rgba(168, 85, 247, 0.2)', color: '#c084fc', border: '1px solid rgba(168, 85, 247, 0.4)' }}>
-          USER REVIEWS
-        </span>
-        <h2>AI Model Ratings & Feedback</h2>
-        <p style={{ color: 'rgba(255, 255, 255, 0.6)', maxWidth: '600px', margin: '0 auto 2rem auto' }}>
-          Rate our neural generation pipelines and share performance feedback.
+    <section id="feedback-section" style={{ padding: '4rem 1.5rem', maxWidth: '850px', margin: '0 auto', color: '#fff' }}>
+      
+      {/* SECTION HEADER */}
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', background: 'linear-gradient(135deg, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          Community Hub & Support Center
+        </h2>
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem' }}>
+          Share your review with the community or submit technical feedback directly to our engineering team.
         </p>
+
+        {/* ADMIN SWITCH BUTTON */}
+        <div style={{ marginTop: '1rem' }}>
+          <button
+            onClick={onSwitchToAdmin}
+            style={{
+              padding: '0.4rem 0.9rem',
+              borderRadius: '20px',
+              border: '1px solid rgba(255,255,255,0.2)',
+              background: 'rgba(255,255,255,0.05)',
+              color: 'rgba(255,255,255,0.8)',
+              fontSize: '0.8rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            🔒 Switch to Admin Moderation
+          </button>
+        </div>
       </div>
 
-      {error && (
-        <div style={{ margin: '0 auto 1.5rem auto', maxWidth: '600px', padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#f87171' }}>
-          <strong>Error:</strong> {error}
-        </div>
-      )}
+      {/* CLEAN TOGGLE BAR */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '0.5rem',
+        background: 'rgba(17, 20, 24, 0.8)',
+        padding: '0.4rem',
+        borderRadius: '12px',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        marginBottom: '2rem'
+      }}>
+        <button
+          onClick={() => setActiveSubTab('quick')}
+          style={{
+            flex: 1,
+            padding: '0.75rem 1rem',
+            borderRadius: '8px',
+            border: 'none',
+            background: activeSubTab === 'quick' ? '#6366f1' : 'transparent',
+            color: activeSubTab === 'quick' ? '#fff' : 'rgba(255,255,255,0.6)',
+            fontWeight: 600,
+            fontSize: '0.9rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          ⭐ Public Reviews
+        </button>
 
-      <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '1000px', margin: '0 auto', alignItems: 'flex-start' }}>
-        
-        {/* Public Submission Form */}
-        <form onSubmit={handleSubmit} style={{ flex: '1', minWidth: '280px', maxWidth: '380px', background: 'rgba(17, 20, 24, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'left' }}>
-          <h3 style={{ marginTop: 0, marginBottom: '1rem', color: '#fff', fontSize: '1.15rem' }}>
-            ⭐ Submit Rating
-          </h3>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.4rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)' }}>Your Name</label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Alex" style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }} required />
-          </div>
+        <button
+          onClick={() => setActiveSubTab('detailed')}
+          style={{
+            flex: 1,
+            padding: '0.75rem 1rem',
+            borderRadius: '8px',
+            border: 'none',
+            background: activeSubTab === 'detailed' ? '#6366f1' : 'transparent',
+            color: activeSubTab === 'detailed' ? '#fff' : 'rgba(255,255,255,0.6)',
+            fontWeight: 600,
+            fontSize: '0.9rem',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          📝 Report an Issue & Uploads
+        </button>
+      </div>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.4rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)' }}>Select Rating</label>
-            <div style={{ display: 'flex', gap: '0.3rem', fontSize: '1.6rem', cursor: 'pointer' }}>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span
-                  key={star}
-                  onClick={() => setRating(star)}
-                  onMouseEnter={() => setHoverRating(star)}
-                  onMouseLeave={() => setHoverRating(0)}
-                  style={{ color: star <= (hoverRating || rating) ? '#f59e0b' : 'rgba(255,255,255,0.2)', transition: 'color 0.15s' }}
-                >
-                  ★
-                </span>
-              ))}
-            </div>
-          </div>
+      {/* SUB-TAB CONTENT 1: QUICK REVIEWS */}
+      {activeSubTab === 'quick' && (
+        <div style={{ background: 'rgba(17, 20, 24, 0.95)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <h3 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.2rem' }}>Leave a Quick Community Review</h3>
 
-          <div style={{ marginBottom: '1.25rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.4rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)' }}>Comment</label>
-            <textarea value={message} onChange={e => setMessage(e.target.value)} rows="2" placeholder="Write feedback..." style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', resize: 'none', boxSizing: 'border-box' }} required />
-          </div>
-
-          <button type="submit" disabled={actionLoading} style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: 'none', background: 'linear-gradient(135deg, #a855f7 0%, #6366f1 100%)', color: '#fff', fontWeight: 600, cursor: 'pointer', opacity: actionLoading ? 0.6 : 1 }}>
-            {actionLoading ? 'Saving...' : 'Post Rating'}
-          </button>
-        </form>
-
-        {/* Public Reviews List (No Edit or Delete Buttons) */}
-        <div style={{ flex: '1.2', minWidth: '300px', maxWidth: '480px', display: 'flex', flexDirection: 'column', gap: '0.75rem', textAlign: 'left' }}>
-          <h3 style={{ marginTop: 0, color: '#fff', fontSize: '1.15rem', marginBottom: '0.25rem' }}>🌟 Community Reviews</h3>
-          
-          {loading && (
-            <div style={{ color: 'rgba(255,255,255,0.5)', padding: '1.5rem', textAlign: 'center' }}>
-              ⏳ Fetching reviews...
+          {toast && (
+            <div style={{ padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem', background: toast.type === 'success' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: toast.type === 'success' ? '#4ade80' : '#f87171' }}>
+              {toast.message}
             </div>
           )}
 
-          {!loading && items.length === 0 && (
-            <p style={{ color: 'rgba(255,255,255,0.4)' }}>No ratings submitted yet.</p>
-          )}
+          <form onSubmit={handleQuickSubmit} style={{ display: 'grid', gap: '1rem', marginBottom: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <input
+                type="text"
+                placeholder="Your Name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }}
+              />
+              <input
+                type="text"
+                placeholder="Rating / Tag (e.g. 5 Stars ⭐)"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }}
+              />
+            </div>
+            <textarea
+              rows="3"
+              placeholder="Your quick feedback..."
+              value={formData.message}
+              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }}
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              style={{ padding: '0.75rem', borderRadius: '8px', border: 'none', background: '#6366f1', color: '#fff', fontWeight: 600, cursor: 'pointer' }}
+            >
+              {loading ? 'Posting...' : 'Post Public Review'}
+            </button>
+          </form>
 
-          <div style={{ maxHeight: '350px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingRight: '0.25rem' }}>
-            {!loading && items.map(item => (
-              <div key={item.id} style={{ background: 'rgba(17, 20, 24, 0.5)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                <strong style={{ color: '#fff', fontSize: '0.95rem' }}>{item.name}</strong> 
-                <div style={{ color: '#f59e0b', fontSize: '0.9rem', marginTop: '0.1rem' }}>
-                  {item.email && item.email.includes('Stars') ? item.email : '5 Stars ⭐'}
+          {/* PUBLIC REVIEW FEED */}
+          <h4 style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', marginBottom: '1rem' }}>Public Community Feed</h4>
+          <div style={{ display: 'grid', gap: '0.75rem', maxHeight: '300px', overflowY: 'auto' }}>
+            {reviews.map((rev) => (
+              <div key={rev.id} style={{ padding: '1rem', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                  <strong style={{ color: '#818cf8', fontSize: '0.95rem' }}>{rev.name}</strong>
+                  <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>{rev.email}</span>
                 </div>
-                <p style={{ margin: '0.35rem 0 0 0', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>{item.message}</p>
+                <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>"{rev.message}"</p>
               </div>
             ))}
           </div>
         </div>
+      )}
 
-      </div>
+      {/* SUB-TAB CONTENT 2: DETAILED MULTI-FIELD FORM */}
+      {activeSubTab === 'detailed' && (
+        <UserFeedbackForm />
+      )}
 
-      <div style={{ marginTop: '2rem' }}>
-        <button onClick={onSwitchToAdmin} style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
-          ⚙️ Switch to Admin Console (Moderation Mode)
-        </button>
-      </div>
     </section>
   );
 }
