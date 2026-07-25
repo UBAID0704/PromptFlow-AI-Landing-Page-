@@ -1,28 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useApp } from './context/AppContext.jsx';
 import UserFeedbackForm from './UserFeedbackForm.jsx';
+import { SkeletonCard } from './components/SkeletonLoader.jsx';
+import { EmptyState } from './components/EmptyState.jsx';
 
 function CrudDashboard({ onSwitchToAdmin }) {
+  const { reviews, isReviewsLoading, fetchReviews } = useApp();
   const [activeSubTab, setActiveSubTab] = useState('quick'); // 'quick' or 'detailed'
-  
-  // --- QUICK REVIEWS STATE ---
-  const [reviews, setReviews] = useState([]);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
-
-  useEffect(() => {
-    fetchReviews();
-  }, []);
-
-  const fetchReviews = async () => {
-    try {
-      const res = await fetch('http://localhost:5000/api/contacts');
-      const data = await res.json();
-      setReviews(data);
-    } catch (err) {
-      console.error('Failed to fetch reviews:', err);
-    }
-  };
 
   const handleQuickSubmit = async (e) => {
     e.preventDefault();
@@ -176,17 +163,28 @@ function CrudDashboard({ onSwitchToAdmin }) {
 
           {/* PUBLIC REVIEW FEED */}
           <h4 style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', marginBottom: '1rem' }}>Public Community Feed</h4>
-          <div style={{ display: 'grid', gap: '0.75rem', maxHeight: '300px', overflowY: 'auto' }}>
-            {reviews.map((rev) => (
-              <div key={rev.id} style={{ padding: '1rem', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
-                  <strong style={{ color: '#818cf8', fontSize: '0.95rem' }}>{rev.name}</strong>
-                  <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>{rev.email}</span>
+          
+          {/* DATA FETCHING STATES */}
+          {isReviewsLoading ? (
+            <>
+              <SkeletonCard />
+              <SkeletonCard />
+            </>
+          ) : reviews.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div style={{ display: 'grid', gap: '0.75rem', maxHeight: '300px', overflowY: 'auto' }}>
+              {reviews.map((rev) => (
+                <div key={rev.id} style={{ padding: '1rem', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                    <strong style={{ color: '#818cf8', fontSize: '0.95rem' }}>{rev.name}</strong>
+                    <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>{rev.email}</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>"{rev.message}"</p>
                 </div>
-                <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>"{rev.message}"</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
