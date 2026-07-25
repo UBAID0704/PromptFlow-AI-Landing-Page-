@@ -1,14 +1,15 @@
 # 🤖 PromptFlow AI — Full Stack Internship Project
 
-A modern, responsive, full-stack AI-powered web application built using **React.js**, **Vite**, **Express.js**, **bcrypt.js**, **multer**, and **JWT Authentication**. This project was completed as part of a **Full Stack Internship** and demonstrates modern frontend development, REST API integration, CRUD operations, secure authentication, route guarding, form validation, file uploads, and responsive UI/UX design.
+A modern, responsive, full-stack AI-powered web application built using **React.js**, **Vite**, **Express.js**, **bcrypt.js**, **multer**, and **JWT Authentication**. This project was completed as part of a **Full Stack Internship** and demonstrates modern frontend development, REST API integration, CRUD operations, secure authentication, route guarding, global state management, form validation, file uploads, and responsive UI/UX design.
 
-The project evolved across five key milestones:
+The project evolved across six key milestones:
 
 - **Week 1 – Task 1:** Consume a Public API (Responsive AI Landing Page)
 - **Week 1 – Task 2:** Responsive UI From a Design Brief (Hugging Face API Integration)
 - **Week 2 – Task 1:** Full CRUD: Frontend Talking to Your Own Backend (AI Model Ratings & Admin Moderation Panel)
 - **Week 2 – Task 2:** Authentication Flow (Signup, Login, Password Hashing, & Protected Routes)
-- **Week 3 – Task 1:** Forms, Validation & Real User Feedback (Multi-Field Form, File Uploads, Dual Validation)
+- **Week 3 – Task 1:** Global State, Data Fetching Patterns & UI Polish (Context API, Skeleton Loaders, Empty States)
+- **Week 3 – Task 2:** Forms, Validation & Real User Feedback (Multi-Field Form, File Uploads, Dual Validation)
 
 ---
 
@@ -26,6 +27,8 @@ The platform includes:
 - Secure User Authentication System (Signup, Login, & Session Management)
 - JWT-secured API routes with bcrypt.js password hashing
 - Protected user route guards with auto-redirects
+- Centralized global state via React Context (no prop-drilling)
+- Skeleton loading states and empty-state UI polish
 - Real-time server active-session logging in the terminal
 
 ---
@@ -129,7 +132,37 @@ Implement real user account management on the frontend and backend, with secure 
 
 ---
 
-## 📝 Week 3 – Task 1: Forms, Validation & Real User Feedback
+## 🧩 Week 3 – Task 1: Global State, Data Fetching Patterns & UI Polish
+
+### 🎯 Objective
+
+Centralize application state, eliminate prop-drilling across multi-level components, and polish asynchronous loading and zero-data UI states.
+
+### ✨ Features & Implementation
+
+- **Global State Architecture (`src/context/AppContext.jsx`):**
+  Implemented React's Context API (`AppProvider` & `useApp` hook) to globally manage user authentication session (`user`), current active navigation tab (`activeTab`), admin moderation view toggle (`isAdminView`), and public community reviews (`reviews`).
+
+- **Refactored Features (Prop-Drilling Removed):**
+  - `Navbar.jsx`: Directly consumes `user`, `activeTab`, and `handleLogout` from the global store without receiving props from `App.jsx`.
+  - `CrudDashboard.jsx`: Pulls `reviews`, `isReviewsLoading`, and `fetchReviews` directly from global context instead of managing localized fetching states.
+
+- **Skeleton Loaders (`src/components/SkeletonLoader.jsx`):**
+  Replaced blank screens and static spinners with CSS-animated shimmer placeholders (`<SkeletonCard/>`) while fetching asynchronous data.
+
+- **Empty State UI (`src/components/EmptyState.jsx`):**
+  Replaced empty lists and unhandled layout gaps with a clean fallback component (`<EmptyState/>`) when zero database records exist.
+
+### 🚀 Skills Demonstrated
+
+- React Context API & custom hooks
+- Eliminating prop-drilling in multi-level component trees
+- Asynchronous UI polish (skeleton loading states)
+- Zero-data / empty-state UX design
+
+---
+
+## 📝 Week 3 – Task 2: Forms, Validation & Real User Feedback
 
 ### 🎯 Objective
 
@@ -137,7 +170,7 @@ Build a multi-field form connected to the backend with strict dual-layer validat
 
 ### ✨ Features & Implementation
 
-- **6 Input Fields (`UserFeedbackForm.jsx`):**
+- **6+ Input Fields (`UserFeedbackForm.jsx`):**
   1. `Full Name` — Text input, minimum 3 characters
   2. `Email Address` — Email input with regex validation
   3. `Category` — Dropdown `<select>` menu
@@ -177,27 +210,32 @@ AI-LANDING-PAGE/
 ├── node_modules/
 │
 ├── server/
-│   ├── uploads/             # Static file storage directory for feedback attachments (NEW)
 │   └── index.js             # Express backend with JWT auth, bcrypt, multer file processing,
-│                             # dual-validation guards, and terminal logging (UPDATED)
+│                             # dual-validation guards, and terminal logging
 │
 ├── src/
+│   ├── components/
+│   │   ├── EmptyState.jsx    # Reusable fallback card for zero-data states (NEW)
+│   │   └── SkeletonLoader.jsx # Animated shimmer cards for async loading (NEW)
+│   ├── context/
+│   │   └── AppContext.jsx    # Global React Context provider & useApp hook (NEW)
 │   ├── AdminPanel.jsx        # Protected admin moderation panel
 │   ├── AiModelsList.jsx      # Live model explorer using Hugging Face API
-│   ├── App.jsx               # Root layout, view router, and route guard logic
+│   ├── App.jsx               # Root layout wrapped in <AppProvider>, view router, and route guard logic (UPDATED)
 │   ├── AuthModal.jsx         # Client-validated Signup & Login modal form
 │   ├── Contact.jsx           # Contact section
-│   ├── CrudDashboard.jsx     # Unified Community Hub & Support Center with tabs (UPDATED)
+│   ├── CrudDashboard.jsx     # Unified Community Hub & Support Center with tabs, using global store (UPDATED)
 │   ├── Dashboard.jsx         # Protected user workspace route
 │   ├── Features.jsx          # AI product features showcase
 │   ├── Footer.jsx            # Platform footer
 │   ├── Hero.jsx              # Hero section banner
 │   ├── index.css             # Global dark-theme styles & glassmorphism
 │   ├── main.jsx               # React entry point
-│   ├── Navbar.jsx             # Streamlined navigation bar (UPDATED)
+│   ├── Navbar.jsx             # Navigation bar using direct global state (UPDATED)
 │   ├── Pricing.jsx            # Subscription pricing tiers
-│   └── UserFeedbackForm.jsx   # Multi-field feedback form with file upload & validation (NEW)
+│   └── UserFeedbackForm.jsx   # Multi-field feedback form with file upload & validation
 │
+├── uploads/                    # Static file storage directory for feedback attachments
 ├── index.html                 # Main HTML entry point
 ├── package.json               # Dependencies (express, cors, jsonwebtoken, bcryptjs, multer, vite, react)
 ├── package-lock.json          # Automatically generated dependency lock file
@@ -238,13 +276,13 @@ AI-LANDING-PAGE/
 
 **Layout:** CSS Flexbox, CSS Grid, Responsive Breakpoints, Mobile-first Design
 **Typography:** Clear hierarchy, consistent spacing, readable text
-**UI Style:** Modern AI-inspired interface, dark theme, glassmorphism effects, interactive cards, smooth layouts
+**UI Style:** Modern AI-inspired interface, dark theme, glassmorphism effects, interactive cards, smooth layouts, shimmer loading states, clean empty-state placeholders
 
 ---
 
 ## 🛠 Technologies Used
 
-**Frontend:** React.js, Vite, JavaScript (ES6+), HTML5, CSS3
+**Frontend:** React.js, Vite, JavaScript (ES6+), HTML5, CSS3, React Context API
 **Backend:** Express.js, Node.js, JSON Web Token (JWT), bcrypt.js, multer, CORS
 **API:** Hugging Face Models API, Fetch API
 
@@ -310,6 +348,47 @@ While `node server/index.js` is running in Terminal 1, all authentication and ma
 
 ---
 
+## 🧪 Testing Instructions (Week 3)
+
+### Prerequisites
+
+Make sure both the backend and frontend are running simultaneously:
+
+```bash
+# Terminal 1: Backend Server
+cd server
+node index.js
+
+# Terminal 2: Frontend Client
+npm run dev
+```
+
+### Step-by-Step Feature Verification
+
+**1. Testing Global Context — No Prop-Drilling (Task 1)**
+- Open http://localhost:5173 in your browser.
+- Click Log In / Sign Up in the Navbar and sign in.
+- Observe how the Navbar instantly displays the 👤 Dashboard and Logout options across all components without needing top-level prop re-renders.
+
+**2. Testing Skeleton Loaders (Task 1)**
+- Open Chrome DevTools (F12) → Network tab.
+- Set network throttling to Slow 3G.
+- Reload the page or switch tabs.
+- Verify that animated shimmer cards (`<SkeletonCard/>`) appear inside the Public Feed and Admin Panel while `GET /api/contacts` is loading.
+
+**3. Testing Empty States (Task 1)**
+- Clear all items from your database/contacts endpoint.
+- Navigate to the Community Feed or Admin Panel.
+- Verify that the 📂 Database Empty / 📭 No Reviews Found card appears rather than a blank space.
+
+**4. Testing Multi-Field Form Validation & Uploads (Task 2)**
+- Go to the Report an Issue & Uploads tab inside the dashboard.
+- Attempt submitting an empty form to observe field-specific error messages.
+- Complete all fields (including selecting a category, date, and attaching a file) and submit.
+- Verify the loading state on the submission button and the resulting feedback toast banner.
+
+---
+
 ## 🎓 Learning Outcomes
 
 **Frontend Development:** React.js, Component-Based Architecture, Responsive Web Design, Reusable UI Components, Modern CSS Layouts
@@ -319,6 +398,8 @@ While `node server/index.js` is running in Terminal 1, all authentication and ma
 **Full Stack Development:** Express.js Backend, CRUD Operations, JWT Authentication, Protected Routes, Role-Based Access, RESTful API Design
 
 **Forms & Validation:** Multi-Field Form Design, Client & Server-Side Validation, File Uploads with Multer, Loading States & Toast Notifications
+
+**State Management & UI Polish:** React Context API, Eliminating Prop-Drilling, Skeleton Loading States, Empty-State UX Design
 
 **Software Engineering:** Project Structure, State Management, Authentication Flow, Error Handling, Clean Code Organization
 
@@ -349,50 +430,5 @@ Computer Science Student — FAST NUCES
 ---
 
 ## 📄 License
-
-This project was developed for educational purposes and as part of a Full Stack Internship assessment.
-
-# 📸 Screenshots
-
-## Responsive AI Landing Page
-
-<img width="1200" height="615" alt="Landing Page" src="https://github.com/user-attachments/assets/d33a92b1-0d32-419f-84ea-e816d88bc846" />
-
-<img width="1204" height="523" alt="Landing Page" src="https://github.com/user-attachments/assets/a585d641-4da6-4acf-97fd-290ff1793eb6" />
-
-<img width="1211" height="614" alt="image" src="https://github.com/user-attachments/assets/8a131724-81c9-471c-bd89-834cad0a2f6d" />
-
-<img width="1166" height="616" alt="image" src="https://github.com/user-attachments/assets/dfcf8549-0a7a-4d20-8acf-fd5355b90f9b" />
-
-<img width="1170" height="529" alt="image" src="https://github.com/user-attachments/assets/7c90779d-5b42-4bca-9157-a58d9d71dc8d" />
-
-<img width="1267" height="551" alt="image" src="https://github.com/user-attachments/assets/44c12287-8604-4296-b07f-8025ae5f7b46" />
-
-<img width="589" height="523" alt="image" src="https://github.com/user-attachments/assets/bb121531-a955-4b24-bed0-a38ea929ed56" />
-
-<img width="1265" height="628" alt="image" src="https://github.com/user-attachments/assets/d521e1e2-e809-423b-8089-0e54d79a69d5" />
-
-<img width="1264" height="609" alt="image" src="https://github.com/user-attachments/assets/61e7f0e3-64eb-404d-9e56-c27fc2ba6a23" />
-
-<img width="1033" height="617" alt="image" src="https://github.com/user-attachments/assets/945788fa-bc72-4ba1-9d6a-7c87ee54eb09" />
-
-<img width="1078" height="621" alt="image" src="https://github.com/user-attachments/assets/b02f9fdc-d3fc-4f05-9ae9-63c90f07b4ed" />
-
-<img width="1058" height="577" alt="image" src="https://github.com/user-attachments/assets/53fb8466-7f2b-4031-b309-58f1664062cb" />
-
-
----
-
-## AI Model Explorer
-
-<img width="1247" height="622" alt="AI Models" src="https://github.com/user-attachments/assets/b2d03992-885b-47fa-8db7-90c9ed87d46a" />
-
-<img width="1262" height="611" alt="AI Models" src="https://github.com/user-attachments/assets/2dacab5f-6bb0-44bb-afa9-2cf8f10a07c0" />
-
-<img width="1243" height="608" alt="AI Models" src="https://github.com/user-attachments/assets/b915d5b7-3428-44a6-b9f6-0832896b1c95" />
-
----
-
-# 📄 License
 
 This project was developed for educational purposes and as part of a Full Stack Internship assessment.
