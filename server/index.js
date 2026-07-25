@@ -20,7 +20,7 @@ if (!fs.existsSync(uploadsDir)) {
 }
 app.use('/uploads', express.static('uploads'));
 
-// Multer Storage Configuration
+// --- MULTER STORAGE CONFIGURATION ---
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -30,18 +30,19 @@ const storage = multer.diskStorage({
   }
 });
 
+// Multer Upload Instance for General & Standalone Uploads
 const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
-    const allowedExtensions = /jpeg|jpg|png|pdf/;
+    const allowedExtensions = /jpeg|jpg|png|pdf|docx/;
     const extName = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
-    const mimeType = allowedExtensions.test(file.mimetype);
+    const mimeType = allowedExtensions.test(file.mimetype) || file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
     if (extName && mimeType) {
       return cb(null, true);
     }
-    cb(new Error('Only PNG, JPG, JPEG, and PDF files are allowed.'));
+    cb(new Error('Only PNG, JPG, JPEG, PDF, and DOCX files are allowed.'));
   }
 });
 
@@ -49,6 +50,7 @@ const upload = multer({
 const users = [];
 let activeSessions = [];
 let feedbackSubmissions = [];
+let uploadedFiles = [];
 let contacts = [
   { id: 1, name: "Sahil", email: "5 Stars ⭐", message: "Love the dark UI theme!" },
   { id: 2, name: "Alex", email: "5 Stars ⭐", message: "Interested in the Pro subscription plan." }
@@ -73,7 +75,54 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// --- WEEK 3 TASK 1: MULTI-FIELD FEEDBACK ENDPOINT ---
+// --- WEEK 4 TASK 1: STANDALONE FILE/IMAGE UPLOAD ENDPOINT ---
+app.post('/api/upload', (req, res) => {
+  upload.single('file')(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ success: false, error: `Upload error: ${err.message}` });
+    } else if (err) {
+      return res.status(400).json({ success: false, error: err.message });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'Please select a file to upload.' });
+    }
+
+    const fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+    const fileRecord = {
+      id: Date.now(),
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      mimeType: req.file.mimetype,
+      size: req.file.size,
+      url: fileUrl,
+      uploadedAt: new Date().toISOString()
+    };
+
+    uploadedFiles.push(fileRecord);
+
+    console.log(`\n========================================`);
+    console.log(`📁 [NEW FILE UPLOADED]`);
+    console.log(`📄 Name: ${req.file.originalname}`);
+    console.log(`⚖️ Size: ${(req.file.size / (1024 * 1024)).toFixed(2)} MB`);
+    console.log(`🔗 Link: ${fileUrl}`);
+    console.log(`========================================\n`);
+
+    res.status(200).json({
+      success: true,
+      message: 'File uploaded successfully!',
+      file: fileRecord
+    });
+  });
+});
+
+// Endpoint to list all uploaded files
+app.get('/api/uploads', async (req, res) => {
+  await delay();
+  res.json(uploadedFiles);
+});
+
+// --- WEEK 3 TASK 2: MULTI-FIELD FEEDBACK ENDPOINT ---
 app.post('/api/feedback', (req, res, next) => {
   upload.single('attachment')(req, res, (err) => {
     if (err) {
