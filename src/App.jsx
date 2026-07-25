@@ -18,6 +18,9 @@ import Dashboard from "./Dashboard.jsx";
 // Week 3 Task 1 Component
 import UserFeedbackForm from "./UserFeedbackForm.jsx";
 
+// Week 4 Task 1 Component
+import FileUpload from "./components/FileUpload.jsx";
+
 function MainContent() {
   const { user, setUser, activeTab, setActiveTab, isAdminView, setIsAdminView } = useApp();
 
@@ -32,6 +35,11 @@ function MainContent() {
           <div id="features"><Features /></div>
           <AiModelsList />
 
+          {/* Standalone File Upload Section on Landing Page */}
+          <div id="upload" style={{ padding: '2rem 1rem' }}>
+            <FileUpload />
+          </div>
+
           {isAdminView ? (
             <AdminPanel onSwitchToPublic={() => setIsAdminView(false)} />
           ) : (
@@ -41,6 +49,13 @@ function MainContent() {
           <div id="pricing"><Pricing /></div>
           <div id="contact"><Contact /></div>
         </>
+      )}
+
+      {/* Standalone Upload Tab View */}
+      {activeTab === 'upload' && (
+        <div style={{ paddingTop: '5rem', paddingBottom: '3rem' }}>
+          <FileUpload />
+        </div>
       )}
 
       {/* Feedback Form View */}
