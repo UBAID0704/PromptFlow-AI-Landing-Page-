@@ -1,8 +1,8 @@
 # 🤖 PromptFlow AI — Full Stack Internship Project
 
-A modern, responsive, full-stack AI-powered web application built using **React.js**, **Vite**, **Express.js**, **bcrypt.js**, **multer**, and **JWT Authentication**. This project was completed as part of a **Full Stack Internship** and demonstrates modern frontend development, REST API integration, CRUD operations, secure authentication, route guarding, global state management, form validation, file uploads, and responsive UI/UX design.
+A modern, responsive, full-stack AI-powered web application built using **React.js**, **Vite**, **Express.js**, **bcrypt.js**, **multer**, **Recharts**, and **JWT Authentication**. This project was completed as part of a **Full Stack Internship** and demonstrates modern frontend development, REST API integration, CRUD operations, secure authentication, route guarding, global state management, form validation, file uploads, data visualization, and responsive UI/UX design.
 
-The project evolved across six key milestones:
+The project evolved across eight key milestones:
 
 - **Week 1 – Task 1:** Consume a Public API (Responsive AI Landing Page)
 - **Week 1 – Task 2:** Responsive UI From a Design Brief (Hugging Face API Integration)
@@ -10,12 +10,14 @@ The project evolved across six key milestones:
 - **Week 2 – Task 2:** Authentication Flow (Signup, Login, Password Hashing, & Protected Routes)
 - **Week 3 – Task 1:** Global State, Data Fetching Patterns & UI Polish (Context API, Skeleton Loaders, Empty States)
 - **Week 3 – Task 2:** Forms, Validation & Real User Feedback (Multi-Field Form, File Uploads, Dual Validation)
+- **Week 4 – Task 1:** File & Media Upload Engine (Drag-and-Drop UI, Multer Storage Pipeline)
+- **Week 4 – Task 2:** Real-Time Analytics & Data Visualization Dashboard (Recharts, Server-Side Aggregation API)
 
 ---
 
 ## 📌 Project Overview
 
-**PromptFlow AI** is a full-stack platform designed to showcase live AI models, collect community ratings, gather detailed user feedback with attachments, and provide authenticated user accounts along with administrative moderation capabilities.
+**PromptFlow AI** is a full-stack platform designed to showcase live AI models, collect community ratings, gather detailed user feedback with attachments, provide authenticated user accounts along with administrative moderation capabilities, and give administrators a real-time analytics view of platform activity.
 
 The platform includes:
 
@@ -29,6 +31,8 @@ The platform includes:
 - Protected user route guards with auto-redirects
 - Centralized global state via React Context (no prop-drilling)
 - Skeleton loading states and empty-state UI polish
+- Drag-and-drop file & media upload engine with progress tracking
+- Real-time analytics dashboard with area, pie, and bar chart visualizations
 - Real-time server active-session logging in the terminal
 
 ---
@@ -201,6 +205,91 @@ Build a multi-field form connected to the backend with strict dual-layer validat
 
 ---
 
+## 📁 Week 4 – Task 1: File & Media Upload Engine
+
+### 🎯 Objective
+
+Give users a frictionless way to attach, upload, and process files, replacing basic browser `<input type="file" />` elements with a production-ready drag-and-drop experience backed by a robust storage pipeline.
+
+### ✨ Features & Implementation
+
+- **Client-Side Drag & Drop UI (`src/components/FileUpload.jsx`):**
+  An interactive dropzone component with drag-state styling, OS file-picker triggers, and immediate file preview cards displaying file names, formatted sizes, and file type badges.
+
+- **Strict Validation Rules:**
+  Client-side and server-side validation checks enforce a 5MB size limit and restrict uploads to supported document and image formats (`.pdf`, `.docx`, `.png`, `.jpg`).
+
+- **Progress Tracking & Feedback:**
+  Real-time upload progress bar animation with visual success/error state cards and download/view links.
+
+- **Backend Storage Pipeline (`server/index.js`):**
+  Configured Multer disk storage on the Node.js/Express server to auto-create an `./uploads/` directory, apply unique timestamped file identifiers to prevent collisions, and serve files statically via Express static routes (`app.use('/uploads', express.static('uploads'))`).
+
+- **Upload Endpoint:** `POST /api/upload` processes multipart form uploads and returns public file URLs.
+
+### 🏗 Architecture & Tech Stack
+
+- **Frontend:** React, HTML5 Drag & Drop API, Fetch API with progress handlers
+- **Backend:** Node.js, Express, Multer (`multer.diskStorage`)
+
+### 🚀 Skills Demonstrated
+
+- Drag-and-drop UI engineering
+- Client & server-side file validation
+- Upload progress tracking with the Fetch API
+- Multer disk storage configuration & static file serving
+
+---
+
+## 📊 Week 4 – Task 2: Real-Time Analytics & Data Visualization Dashboard
+
+### 🎯 Objective
+
+Give administrators and stakeholders a centralized, real-time view of platform activity — signups, feedback submissions, and document uploads — instead of manually checking server logs or database entries.
+
+### ✨ Features & Implementation
+
+- **Server-Side Aggregation API (`GET /api/analytics`):**
+  Computes live revenue totals, active user sessions, storage usage in megabytes, and activity distribution across platform features.
+
+- **Key Performance Metric Cards:**
+  Four high-level stat cards positioned at the top of the view offer an immediate health check (99.9% uptime, total revenue, user count, processed files).
+
+- **Multi-Format Data Visualizations (`src/components/AnalyticsDashboard.jsx`, powered by Recharts):**
+  1. **Area Chart** — Displays monthly growth trends for revenue and user acquisition.
+  2. **Donut / Pie Chart** — Visualizes feature utilization breakdown (Document Summaries, Code Analysis, Feedback, Media).
+  3. **Bar Chart** — Tracks monthly infrastructure storage load in megabytes.
+
+- **Interactive Control & Responsiveness:**
+  A category filter dropdown (All Metrics, Revenue, Active Users, Storage) dynamically re-fetches and filters backend data via `req.query.category`. Charts are wrapped in `ResponsiveContainer` to guarantee fluidity across desktop and mobile screens.
+
+### 🏗 Architecture & Tech Stack
+
+- **Frontend:** React, Recharts (`AreaChart`, `PieChart`, `BarChart`, `ResponsiveContainer`)
+- **Backend:** Express REST API, query parameter filtering (`req.query.category`), server-side stat aggregation
+
+### 🚀 Skills Demonstrated
+
+- Server-side data aggregation & REST API design
+- Recharts-based data visualization (area, pie, bar charts)
+- Query-parameter-driven backend filtering
+- Responsive chart layouts
+
+### 💡 How Week 4 Tasks 1 & 2 Work Together
+
+Together, these two tasks form a complete cycle: Task 1 gives users the power to upload files to the server, while Task 2 aggregates those file uploads into real-time storage metrics and usage charts on the analytics dashboard.
+
+### 📌 Week 4 File Change Summary
+
+| File Path | Status | Task | Key Purpose |
+| --- | --- | --- | --- |
+| `src/components/FileUpload.jsx` | **Created** | Task 1 | Drag-and-drop file upload UI & progress tracking |
+| `src/components/AnalyticsDashboard.jsx` | **Created** | Task 2 | Recharts data visualization dashboard component |
+| `server/index.js` | **Updated** | Task 1 & 2 | Added Multer file storage routes + `/api/analytics` endpoint |
+| `src/App.jsx` | **Updated** | Task 1 & 2 | Imported and mounted both components into the landing page and tab views (`activeTab === 'upload'`, `activeTab === 'analytics'`) |
+
+---
+
 ## 📂 Complete Project Structure
 
 ```
@@ -210,34 +299,37 @@ AI-LANDING-PAGE/
 ├── node_modules/
 │
 ├── server/
-│   └── index.js             # Express backend with JWT auth, bcrypt, multer file processing,
-│                             # dual-validation guards, and terminal logging
+│   └── index.js             # Express backend: JWT auth, bcrypt, multer file storage,
+│                             # /api/upload, /api/analytics aggregation, dual-validation guards,
+│                             # and terminal logging
 │
 ├── src/
 │   ├── components/
-│   │   ├── EmptyState.jsx    # Reusable fallback card for zero-data states (NEW)
-│   │   └── SkeletonLoader.jsx # Animated shimmer cards for async loading (NEW)
+│   │   ├── AnalyticsDashboard.jsx # Recharts analytics dashboard (area/pie/bar charts) (NEW)
+│   │   ├── EmptyState.jsx    # Reusable fallback card for zero-data states
+│   │   ├── FileUpload.jsx    # Drag-and-drop upload UI with progress tracking (NEW)
+│   │   └── SkeletonLoader.jsx # Animated shimmer cards for async loading
 │   ├── context/
-│   │   └── AppContext.jsx    # Global React Context provider & useApp hook (NEW)
+│   │   └── AppContext.jsx    # Global React Context provider & useApp hook
 │   ├── AdminPanel.jsx        # Protected admin moderation panel
 │   ├── AiModelsList.jsx      # Live model explorer using Hugging Face API
 │   ├── App.jsx               # Root layout wrapped in <AppProvider>, view router, and route guard logic (UPDATED)
 │   ├── AuthModal.jsx         # Client-validated Signup & Login modal form
 │   ├── Contact.jsx           # Contact section
-│   ├── CrudDashboard.jsx     # Unified Community Hub & Support Center with tabs, using global store (UPDATED)
+│   ├── CrudDashboard.jsx     # Unified Community Hub & Support Center with tabs, using global store
 │   ├── Dashboard.jsx         # Protected user workspace route
 │   ├── Features.jsx          # AI product features showcase
 │   ├── Footer.jsx            # Platform footer
 │   ├── Hero.jsx              # Hero section banner
 │   ├── index.css             # Global dark-theme styles & glassmorphism
 │   ├── main.jsx               # React entry point
-│   ├── Navbar.jsx             # Navigation bar using direct global state (UPDATED)
+│   ├── Navbar.jsx             # Navigation bar using direct global state
 │   ├── Pricing.jsx            # Subscription pricing tiers
 │   └── UserFeedbackForm.jsx   # Multi-field feedback form with file upload & validation
 │
-├── uploads/                    # Static file storage directory for feedback attachments
+├── uploads/                    # Static file storage directory (feedback attachments + Task 1 uploads)
 ├── index.html                 # Main HTML entry point
-├── package.json               # Dependencies (express, cors, jsonwebtoken, bcryptjs, multer, vite, react)
+├── package.json               # Dependencies (express, cors, jsonwebtoken, bcryptjs, multer, recharts, vite, react)
 ├── package-lock.json          # Automatically generated dependency lock file
 └── README.md                  # Project documentation
 ```
@@ -269,6 +361,8 @@ AI-LANDING-PAGE/
 | PUT | `/api/contacts/:id` | **Admin Only** | Update existing record (Requires JWT) |
 | DELETE | `/api/contacts/:id` | **Admin Only** | Remove review from database (Requires JWT) |
 | GET | `/api/admin/active-users` | Admin | View active sessions and real-time logs |
+| POST | `/api/upload` | Public | Upload a file via multipart form data; returns a public file URL |
+| GET | `/api/analytics` | Admin | Retrieve aggregated platform metrics (revenue, users, storage, feature usage); supports `?category=` filtering |
 
 ---
 
@@ -276,13 +370,13 @@ AI-LANDING-PAGE/
 
 **Layout:** CSS Flexbox, CSS Grid, Responsive Breakpoints, Mobile-first Design
 **Typography:** Clear hierarchy, consistent spacing, readable text
-**UI Style:** Modern AI-inspired interface, dark theme, glassmorphism effects, interactive cards, smooth layouts, shimmer loading states, clean empty-state placeholders
+**UI Style:** Modern AI-inspired interface, dark theme, glassmorphism effects, interactive cards, smooth layouts, shimmer loading states, clean empty-state placeholders, drag-and-drop dropzones, responsive data visualizations
 
 ---
 
 ## 🛠 Technologies Used
 
-**Frontend:** React.js, Vite, JavaScript (ES6+), HTML5, CSS3, React Context API
+**Frontend:** React.js, Vite, JavaScript (ES6+), HTML5, CSS3, React Context API, HTML5 Drag & Drop API, Recharts
 **Backend:** Express.js, Node.js, JSON Web Token (JWT), bcrypt.js, multer, CORS
 **API:** Hugging Face Models API, Fetch API
 
@@ -302,7 +396,7 @@ cd ai-landing-page
 ```bash
 # Install frontend & backend dependencies
 npm install
-npm install express cors jsonwebtoken bcryptjs multer
+npm install express cors jsonwebtoken bcryptjs multer recharts
 ```
 
 ---
@@ -348,7 +442,7 @@ While `node server/index.js` is running in Terminal 1, all authentication and ma
 
 ---
 
-## 🧪 Testing Instructions (Week 3)
+## 🧪 Testing Instructions (Week 3 & Week 4)
 
 ### Prerequisites
 
@@ -387,6 +481,18 @@ npm run dev
 - Complete all fields (including selecting a category, date, and attaching a file) and submit.
 - Verify the loading state on the submission button and the resulting feedback toast banner.
 
+**5. Testing the Drag-and-Drop File Upload Engine (Week 4, Task 1)**
+- Navigate to the Upload view (`activeTab === 'upload'`).
+- Drag a supported file (`.pdf`, `.docx`, `.png`, `.jpg`) under 5MB onto the dropzone and confirm the drag-state styling activates.
+- Confirm a file preview card appears showing name, formatted size, and type badge, and that the upload progress bar animates to completion.
+- Try uploading an unsupported file type or one over 5MB and confirm the client-side error state is shown before it hits the server.
+
+**6. Testing the Analytics Dashboard (Week 4, Task 2)**
+- Navigate to the Analytics view (`activeTab === 'analytics'`).
+- Confirm the four metric stat cards (uptime, revenue, users, processed files) render with live values from `GET /api/analytics`.
+- Confirm the area, pie/donut, and bar charts render correctly and resize responsively when the browser window is resized or viewed on mobile.
+- Use the category filter dropdown (All Metrics, Revenue, Active Users, Storage) and confirm the charts re-fetch and update based on the selected `?category=` query parameter.
+
 ---
 
 ## 🎓 Learning Outcomes
@@ -401,6 +507,10 @@ npm run dev
 
 **State Management & UI Polish:** React Context API, Eliminating Prop-Drilling, Skeleton Loading States, Empty-State UX Design
 
+**File Handling & Media:** Drag-and-Drop UI Engineering, HTML5 Drag & Drop API, Multer Disk Storage, Upload Progress Tracking, Client & Server File Validation
+
+**Data Visualization & Analytics:** Recharts (Area, Pie, Bar Charts), Server-Side Data Aggregation, Query-Parameter-Driven Filtering, Responsive Chart Design
+
 **Software Engineering:** Project Structure, State Management, Authentication Flow, Error Handling, Clean Code Organization
 
 ---
@@ -414,10 +524,11 @@ npm run dev
 - AI chatbot assistant
 - Advanced AI model filtering
 - User profiles
-- Admin analytics dashboard
 - Review moderation history
 - Image generation support
 - Bookmark favorite AI models
+- Exportable analytics reports (CSV/PDF)
+- Cloud object storage for uploaded files (e.g., S3) instead of local disk storage
 
 ---
 
