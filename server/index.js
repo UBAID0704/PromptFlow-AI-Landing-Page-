@@ -331,6 +331,61 @@ app.delete('/api/contacts/:id', verifyToken, async (req, res) => {
   res.json({ message: "Deleted successfully" });
 });
 
+// --- WEEK 4 TASK 2: DASHBOARD DATA VISUALIZATION ENDPOINT ---
+app.get('/api/analytics', async (req, res) => {
+  await delay(300);
+  const { category = 'all' } = req.query;
+
+  // Mock aggregated dataset feedable by real backend activity
+  const monthlyData = [
+    { month: 'Jan', revenue: 4200, users: 120, storageMB: 350 },
+    { month: 'Feb', revenue: 5800, users: 210, storageMB: 520 },
+    { month: 'Mar', revenue: 8400, users: 340, storageMB: 780 },
+    { month: 'Apr', revenue: 7100, users: 290, storageMB: 640 },
+    { month: 'May', revenue: 9600, users: 480, storageMB: 910 },
+    { month: 'Jun', revenue: 11200, users: 610, storageMB: 1200 }
+  ];
+
+  const categoryDistribution = [
+    { name: 'Document Summaries', value: 45, color: '#6366f1' },
+    { name: 'Code Analysis', value: 30, color: '#3b82f6' },
+    { name: 'Feedback Posts', value: 15, color: '#10b981' },
+    { name: 'Other Media', value: 10, color: '#f59e0b' }
+  ];
+
+  const recentActivity = [
+    { id: 1, action: 'File Uploaded', detail: 'Project_Doc.pdf', time: '10 mins ago' },
+    { id: 2, action: 'New User Signup', detail: 'alex@example.com', time: '25 mins ago' },
+    { id: 3, action: 'Feedback Received', detail: '5 Stars Rating', time: '1 hour ago' },
+    { id: 4, action: 'API Request', detail: 'Code Analysis executed', time: '2 hours ago' }
+  ];
+
+  // Filter logic based on request query
+  let filteredMonthly = monthlyData;
+  if (category === 'revenue') {
+    filteredMonthly = monthlyData.map(d => ({ month: d.month, revenue: d.revenue }));
+  } else if (category === 'users') {
+    filteredMonthly = monthlyData.map(d => ({ month: d.month, users: d.users }));
+  } else if (category === 'usage') {
+    filteredMonthly = monthlyData.map(d => ({ month: d.month, storageMB: d.storageMB }));
+  }
+
+  res.json({
+    summaryCards: {
+      totalRevenue: '$46,300',
+      activeUsers: users.length + 205,
+      totalUploads: uploadedFiles.length + 84,
+      systemHealth: '99.9%'
+    },
+    monthlyTrends: filteredMonthly,
+    categoryDistribution,
+    recentActivity
+  });
+});
+
+
+
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
