@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useApp } from './context/AppContext.jsx';
+import { SkeletonCard } from './components/SkeletonLoader.jsx';
+import { EmptyState } from './components/EmptyState.jsx';
 
 const API_URL = 'http://localhost:5000/api/contacts';
 const LOGIN_URL = 'http://localhost:5000/api/admin/login';
 
 function AdminPanel({ onSwitchToPublic }) {
+  const { fetchReviews } = useApp();
+
   const [token, setToken] = useState(localStorage.getItem('adminToken') || '');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState(null);
@@ -111,6 +116,7 @@ function AdminPanel({ onSwitchToPublic }) {
 
       cancelEdit();
       await fetchItems();
+      fetchReviews(); // Sync public state
     } catch (err) {
       setError(err.message);
     } finally {
@@ -119,6 +125,8 @@ function AdminPanel({ onSwitchToPublic }) {
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this record?')) return;
+
     setActionLoading(true);
     setError(null);
     try {
@@ -136,6 +144,7 @@ function AdminPanel({ onSwitchToPublic }) {
       if (!res.ok) throw new Error(data.error || 'Delete action failed.');
 
       await fetchItems();
+      fetchReviews(); // Sync public state
     } catch (err) {
       setError(err.message);
     } finally {
@@ -228,27 +237,39 @@ function AdminPanel({ onSwitchToPublic }) {
           </form>
         )}
 
-        {loading && <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)' }}>⏳ Loading database records...</p>}
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          {!loading && items.map(item => (
-            <div key={item.id} style={{ background: 'rgba(17, 20, 24, 0.6)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
-              <div>
-                <strong style={{ color: '#fff', fontSize: '0.95rem' }}>{item.name}</strong> 
-                <span style={{ fontSize: '0.85rem', color: '#6366f1', marginLeft: '0.5rem' }}>({item.email})</span>
-                <p style={{ margin: '0.35rem 0 0 0', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>{item.message}</p>
+        {/* LOADING & EMPTY STATES */}
+        {loading ? (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        ) : items.length === 0 ? (
+          <EmptyState 
+            icon="📂" 
+            title="Database Empty" 
+            description="There are currently no records in the database to manage." 
+          />
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {items.map(item => (
+              <div key={item.id} style={{ background: 'rgba(17, 20, 24, 0.6)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
+                <div>
+                  <strong style={{ color: '#fff', fontSize: '0.95rem' }}>{item.name}</strong> 
+                  <span style={{ fontSize: '0.85rem', color: '#6366f1', marginLeft: '0.5rem' }}>({item.email})</span>
+                  <p style={{ margin: '0.35rem 0 0 0', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>{item.message}</p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                  <button onClick={() => startEdit(item)} disabled={actionLoading} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', padding: '0.4rem 0.65rem', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontSize: '0.8rem' }}>
+                    Edit
+                  </button>
+                  <button onClick={() => handleDelete(item.id)} disabled={actionLoading} style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '0.4rem 0.65rem', borderRadius: '6px', color: '#f87171', cursor: 'pointer', fontSize: '0.8rem' }}>
+                    Delete
+                  </button>
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: '0.4rem' }}>
-                <button onClick={() => startEdit(item)} disabled={actionLoading} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', padding: '0.4rem 0.65rem', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontSize: '0.8rem' }}>
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(item.id)} disabled={actionLoading} style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '0.4rem 0.65rem', borderRadius: '6px', color: '#f87171', cursor: 'pointer', fontSize: '0.8rem' }}>
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
