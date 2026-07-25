@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { AppProvider, useApp } from './context/AppContext.jsx';
+
 import Navbar from "./Navbar.jsx";
 import Hero from "./Hero.jsx";
 import Features from "./Features.jsx";
@@ -13,35 +15,15 @@ import Footer from "./Footer.jsx";
 import AuthModal from "./AuthModal.jsx";
 import Dashboard from "./Dashboard.jsx";
 
-function App() {
-  const [isAdminView, setIsAdminView] = useState(false);
-  const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('landing'); // 'landing', 'auth', 'dashboard'
+// Week 3 Task 1 Component
+import UserFeedbackForm from "./UserFeedbackForm.jsx";
 
-  // Restore user session on refresh
-  useEffect(() => {
-    const savedUser = localStorage.getItem('userData');
-    const token = localStorage.getItem('userToken');
-    if (savedUser && token) {
-      setUser(JSON.parse(savedUser));
-    }
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userData');
-    setUser(null);
-    setActiveTab('landing');
-  };
+function MainContent() {
+  const { user, setUser, activeTab, setActiveTab, isAdminView, setIsAdminView } = useApp();
 
   return (
     <div className="app-container" style={{ background: '#0a0c10', minHeight: '100vh', color: '#fff' }}>
-      <Navbar 
-        user={user} 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        onLogout={handleLogout} 
-      />
+      <Navbar />
 
       {/* Main Landing View */}
       {activeTab === 'landing' && (
@@ -61,6 +43,11 @@ function App() {
         </>
       )}
 
+      {/* Feedback Form View */}
+      {activeTab === 'feedback' && (
+        <UserFeedbackForm />
+      )}
+
       {/* Authentication Route */}
       {activeTab === 'auth' && (
         <AuthModal 
@@ -74,9 +61,8 @@ function App() {
       {/* Protected Dashboard Route */}
       {activeTab === 'dashboard' && (
         user ? (
-          <Dashboard user={user} onLogout={handleLogout} />
+          <Dashboard user={user} />
         ) : (
-          /* Protected Route Redirect Guard */
           <AuthModal 
             onLoginSuccess={(loggedInUser) => {
               setUser(loggedInUser);
@@ -91,4 +77,10 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <AppProvider>
+      <MainContent />
+    </AppProvider>
+  );
+}
