@@ -1,6 +1,9 @@
 import React from 'react';
+import { useApp } from './context/AppContext.jsx';
 
-function Navbar({ user, activeTab, setActiveTab, onLogout }) {
+function Navbar() {
+  const { user, activeTab, setActiveTab, handleLogout } = useApp();
+
   return (
     <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 2rem', background: 'rgba(10, 12, 16, 0.8)', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'sticky', top: 0, zIndex: 100, backdropFilter: 'blur(10px)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} onClick={() => setActiveTab('landing')}>
@@ -18,7 +21,7 @@ function Navbar({ user, activeTab, setActiveTab, onLogout }) {
             <button onClick={() => setActiveTab('dashboard')} style={{ background: 'transparent', border: 'none', color: activeTab === 'dashboard' ? '#818cf8' : 'rgba(255,255,255,0.7)', cursor: 'pointer', fontSize: '0.9rem' }}>
               👤 Dashboard
             </button>
-            <button onClick={onLogout} style={{ padding: '0.4rem 0.85rem', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.4)', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', cursor: 'pointer', fontSize: '0.85rem' }}>
+            <button onClick={handleLogout} style={{ padding: '0.4rem 0.85rem', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.4)', background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', cursor: 'pointer', fontSize: '0.85rem' }}>
               Logout
             </button>
           </>
