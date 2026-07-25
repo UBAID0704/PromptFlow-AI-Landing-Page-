@@ -21,6 +21,9 @@ import UserFeedbackForm from "./UserFeedbackForm.jsx";
 // Week 4 Task 1 Component
 import FileUpload from "./components/FileUpload.jsx";
 
+// Week 4 Task 2 Component
+import AnalyticsDashboard from "./components/AnalyticsDashboard.jsx";
+
 function MainContent() {
   const { user, setUser, activeTab, setActiveTab, isAdminView, setIsAdminView } = useApp();
 
@@ -35,9 +38,14 @@ function MainContent() {
           <div id="features"><Features /></div>
           <AiModelsList />
 
-          {/* Standalone File Upload Section on Landing Page */}
+          {/* Standalone File Upload Section */}
           <div id="upload" style={{ padding: '2rem 1rem' }}>
             <FileUpload />
+          </div>
+
+          {/* Week 4 Task 2 Data Visualization Section */}
+          <div id="analytics" style={{ padding: '2rem 1rem' }}>
+            <AnalyticsDashboard />
           </div>
 
           {isAdminView ? (
@@ -55,6 +63,13 @@ function MainContent() {
       {activeTab === 'upload' && (
         <div style={{ paddingTop: '5rem', paddingBottom: '3rem' }}>
           <FileUpload />
+        </div>
+      )}
+
+      {/* Standalone Analytics Tab View */}
+      {activeTab === 'analytics' && (
+        <div style={{ paddingTop: '5rem', paddingBottom: '3rem' }}>
+          <AnalyticsDashboard />
         </div>
       )}
 
