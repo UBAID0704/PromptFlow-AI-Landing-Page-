@@ -5,9 +5,10 @@ import bcrypt from 'bcryptjs';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const JWT_SECRET = 'your_super_secret_jwt_key_2026';
 
 app.use(cors());
@@ -35,14 +36,17 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
-    const allowedExtensions = /jpeg|jpg|png|pdf|docx/;
+    const allowedExtensions = /jpeg|jpg|png|pdf|docx|txt|csv/;
+    const allowedMimeTypes = /jpeg|jpg|png|pdf|plain|csv/;
     const extName = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
-    const mimeType = allowedExtensions.test(file.mimetype) || file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    const mimeType =
+      allowedMimeTypes.test(file.mimetype) ||
+      file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
     if (extName && mimeType) {
       return cb(null, true);
     }
-    cb(new Error('Only PNG, JPG, JPEG, PDF, and DOCX files are allowed.'));
+    cb(new Error('Only PNG, JPG, JPEG, PDF, DOCX, TXT, and CSV files are allowed.'));
   }
 });
 
@@ -51,9 +55,11 @@ const users = [];
 let activeSessions = [];
 let feedbackSubmissions = [];
 let uploadedFiles = [];
+
+// Clean initial contact/inquiry data (NO STARS)
 let contacts = [
-  { id: 1, name: "Sahil", email: "5 Stars ⭐", message: "Love the dark UI theme!" },
-  { id: 2, name: "Alex", email: "5 Stars ⭐", message: "Interested in the Pro subscription plan." }
+  { id: 1, name: "Sahil", email: "sahil@example.com", message: "Love the dark UI theme!" },
+  { id: 2, name: "Alex", email: "alex@example.com", message: "Interested in the Pro subscription plan." }
 ];
 
 const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
@@ -75,7 +81,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// --- WEEK 4 TASK 1: STANDALONE FILE/IMAGE UPLOAD ENDPOINT ---
+// --- STANDALONE UPLOAD ENDPOINT ---
 app.post('/api/upload', (req, res) => {
   upload.single('file')(req, res, (err) => {
     if (err instanceof multer.MulterError) {
@@ -101,13 +107,6 @@ app.post('/api/upload', (req, res) => {
 
     uploadedFiles.push(fileRecord);
 
-    console.log(`\n========================================`);
-    console.log(`📁 [NEW FILE UPLOADED]`);
-    console.log(`📄 Name: ${req.file.originalname}`);
-    console.log(`⚖️ Size: ${(req.file.size / (1024 * 1024)).toFixed(2)} MB`);
-    console.log(`🔗 Link: ${fileUrl}`);
-    console.log(`========================================\n`);
-
     res.status(200).json({
       success: true,
       message: 'File uploaded successfully!',
@@ -116,13 +115,12 @@ app.post('/api/upload', (req, res) => {
   });
 });
 
-// Endpoint to list all uploaded files
 app.get('/api/uploads', async (req, res) => {
   await delay();
   res.json(uploadedFiles);
 });
 
-// --- WEEK 3 TASK 2: MULTI-FIELD FEEDBACK ENDPOINT ---
+// --- FEEDBACK ENDPOINTS (STARS KEPT HERE) ---
 app.post('/api/feedback', (req, res, next) => {
   upload.single('attachment')(req, res, (err) => {
     if (err) {
@@ -135,12 +133,11 @@ app.post('/api/feedback', (req, res, next) => {
     next();
   });
 }, async (req, res) => {
-  await delay(800); // Simulate network latency
+  await delay(800);
 
   const { fullName, email, category, rating, experienceDate, comments } = req.body;
   const errors = {};
 
-  // STRICT SERVER-SIDE VALIDATION
   if (!fullName || fullName.trim().length < 3) {
     errors.fullName = 'Full Name must be at least 3 characters long.';
   }
@@ -159,9 +156,7 @@ app.post('/api/feedback', (req, res, next) => {
     errors.rating = 'Rating must be between 1 and 5 stars.';
   }
 
-  if (!experienceDate) {
-    errors.experienceDate = 'Experience date is required.';
-  } else if (new Date(experienceDate) > new Date()) {
+  if (experienceDate && new Date(experienceDate) > new Date()) {
     errors.experienceDate = 'Experience date cannot be set in the future.';
   }
 
@@ -169,12 +164,7 @@ app.post('/api/feedback', (req, res, next) => {
     errors.comments = 'Feedback comments must be at least 10 characters long.';
   }
 
-  if (!req.file) {
-    errors.attachment = 'A file attachment (screenshot or document) is required.';
-  }
-
   if (Object.keys(errors).length > 0) {
-    console.log(`\n❌ [SERVER VALIDATION REJECTED]`, errors, `\n`);
     return res.status(400).json({
       success: false,
       message: 'Server-side validation failed.',
@@ -188,21 +178,13 @@ app.post('/api/feedback', (req, res, next) => {
     email,
     category,
     rating: numericRating,
-    experienceDate,
+    experienceDate: experienceDate || new Date().toISOString().split('T')[0],
     comments,
-    fileUrl: `/uploads/${req.file.filename}`,
+    fileUrl: req.file ? `/uploads/${req.file.filename}` : null,
     submittedAt: new Date().toISOString()
   };
 
   feedbackSubmissions.push(newFeedback);
-
-  console.log(`\n========================================`);
-  console.log(`📋 [NEW DETAILED FEEDBACK RECEIVED]`);
-  console.log(`👤 Name: ${fullName} (${email})`);
-  console.log(`🏷️ Category: ${category} | ⭐ Rating: ${rating}/5`);
-  console.log(`📅 Date: ${experienceDate}`);
-  console.log(`📁 File Saved: ${req.file.filename}`);
-  console.log(`========================================\n`);
 
   res.status(201).json({
     success: true,
@@ -214,6 +196,38 @@ app.post('/api/feedback', (req, res, next) => {
 app.get('/api/feedback', async (req, res) => {
   await delay();
   res.json(feedbackSubmissions);
+});
+
+app.put('/api/feedback/:id', verifyToken, async (req, res) => {
+  await delay();
+  const id = Number(req.params.id);
+  const index = feedbackSubmissions.findIndex(f => Number(f.id) === id);
+  if (index === -1) return res.status(404).json({ error: "Feedback entry not found." });
+
+  const { fullName, email, category, rating, comments } = req.body;
+  feedbackSubmissions[index] = {
+    ...feedbackSubmissions[index],
+    ...(fullName && { fullName }),
+    ...(email && { email }),
+    ...(category && { category }),
+    ...(rating && { rating: Number(rating) }),
+    ...(comments && { comments })
+  };
+
+  res.json(feedbackSubmissions[index]);
+});
+
+app.delete('/api/feedback/:id', verifyToken, async (req, res) => {
+  await delay();
+  const id = Number(req.params.id);
+  const initialLength = feedbackSubmissions.length;
+  feedbackSubmissions = feedbackSubmissions.filter(f => Number(f.id) !== id);
+
+  if (feedbackSubmissions.length === initialLength) {
+    return res.status(404).json({ error: "Feedback entry not found." });
+  }
+
+  res.json({ message: "Feedback deleted successfully" });
 });
 
 // --- AUTH ROUTES ---
@@ -287,7 +301,7 @@ app.get('/api/admin/active-users', (req, res) => {
   });
 });
 
-// --- CONTACTS & ADMIN CRUD ROUTES ---
+// --- CONTACTS / INQUIRIES ROUTES (NO STARS AT ALL) ---
 app.get('/api/contacts', async (req, res) => {
   await delay();
   res.json(contacts);
@@ -296,10 +310,15 @@ app.get('/api/contacts', async (req, res) => {
 app.post('/api/contacts', async (req, res) => {
   await delay();
   const { name, email, message } = req.body;
-  if (!name || !email || !message) {
-    return res.status(400).json({ error: "All input fields are required." });
+  if (!name || !message || !email) {
+    return res.status(400).json({ error: "Name, email, and message fields are required." });
   }
-  const newContact = { id: Date.now(), name, email, message };
+  const newContact = { 
+    id: Date.now(), 
+    name, 
+    email, 
+    message 
+  };
   contacts.push(newContact);
   res.status(201).json(newContact);
 });
@@ -316,27 +335,32 @@ app.post('/api/admin/login', async (req, res) => {
 
 app.put('/api/contacts/:id', verifyToken, async (req, res) => {
   await delay();
-  const { id } = req.params;
+  const id = Number(req.params.id);
   const { name, email, message } = req.body;
-  const index = contacts.findIndex(c => c.id === parseInt(id));
+  const index = contacts.findIndex(c => Number(c.id) === id);
   if (index === -1) return res.status(404).json({ error: "Record not found." });
-  contacts[index] = { ...contacts[index], name, email, message };
+
+  contacts[index] = { 
+    ...contacts[index], 
+    name: name || contacts[index].name, 
+    email: email || contacts[index].email, 
+    message: message || contacts[index].message 
+  };
   res.json(contacts[index]);
 });
 
 app.delete('/api/contacts/:id', verifyToken, async (req, res) => {
   await delay();
-  const { id } = req.params;
-  contacts = contacts.filter(c => c.id !== parseInt(id));
+  const id = Number(req.params.id);
+  contacts = contacts.filter(c => Number(c.id) !== id);
   res.json({ message: "Deleted successfully" });
 });
 
-// --- WEEK 4 TASK 2: DASHBOARD DATA VISUALIZATION ENDPOINT ---
+// --- DASHBOARD ANALYTICS ENDPOINT ---
 app.get('/api/analytics', async (req, res) => {
   await delay(300);
   const { category = 'all' } = req.query;
 
-  // Mock aggregated dataset feedable by real backend activity
   const monthlyData = [
     { month: 'Jan', revenue: 4200, users: 120, storageMB: 350 },
     { month: 'Feb', revenue: 5800, users: 210, storageMB: 520 },
@@ -360,7 +384,6 @@ app.get('/api/analytics', async (req, res) => {
     { id: 4, action: 'API Request', detail: 'Code Analysis executed', time: '2 hours ago' }
   ];
 
-  // Filter logic based on request query
   let filteredMonthly = monthlyData;
   if (category === 'revenue') {
     filteredMonthly = monthlyData.map(d => ({ month: d.month, revenue: d.revenue }));
@@ -383,9 +406,11 @@ app.get('/api/analytics', async (req, res) => {
   });
 });
 
+const isMainModule = process.argv[1] && fileURLToPath(import.meta.url) === fs.realpathSync(process.argv[1]);
+if (isMainModule || process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  });
+}
 
-
-
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+export default app;
