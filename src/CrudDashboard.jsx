@@ -1,200 +1,186 @@
-import React, { useState } from 'react';
-import { useApp } from './context/AppContext.jsx';
-import UserFeedbackForm from './UserFeedbackForm.jsx';
-import { SkeletonCard } from './components/SkeletonLoader.jsx';
-import { EmptyState } from './components/EmptyState.jsx';
+import React, { useState, useEffect } from 'react';
 
-function CrudDashboard({ onSwitchToAdmin }) {
-  const { reviews, isReviewsLoading, fetchReviews } = useApp();
-  const [activeSubTab, setActiveSubTab] = useState('quick'); // 'quick' or 'detailed'
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState(null);
+export default function CrudDashboard() {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    category: 'UI UX Bug',
+    date: '',
+    feedback: ''
+  });
+  const [file, setFile] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [submitted, setSubmitted] = useState(false);
 
-  const handleQuickSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) {
-      setToast({ type: 'error', message: 'All fields are required.' });
-      return;
-    }
-
+  const fetchReviews = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/contacts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      if (!res.ok) throw new Error('Failed to submit review');
-      
-      setToast({ type: 'success', message: 'Review added to community feed!' });
-      setFormData({ name: '', email: '', message: '' });
-      fetchReviews();
+      const res = await fetch('http://localhost:5000/api/feedback');
+      const data = await res.json();
+      // Ensure state is always an array
+      if (Array.isArray(data)) {
+        setReviews(data);
+      } else if (data && Array.isArray(data.reviews)) {
+        setReviews(data.reviews);
+      } else {
+        setReviews([]);
+      }
     } catch (err) {
-      setToast({ type: 'error', message: err.message });
+      console.error('Failed to fetch reviews:', err);
+      setReviews([]);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    setFile(e.target.files && e.target.files[0] ? e.target.files[0] : null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+
+    if (!formData.name || !formData.email || !formData.category || !formData.date || !formData.feedback || !file) {
+      setErrorMessage('Please fill in all fields and attach a file before submitting.');
+      return;
+    }
+
+    try {
+      // The backend expects multipart/form-data with fullName / experienceDate / comments / rating / attachment
+      const payload = new FormData();
+      payload.append('fullName', formData.name);
+      payload.append('email', formData.email);
+      payload.append('category', formData.category);
+      payload.append('rating', 5); // this quick-review widget doesn't collect a star rating, so default to 5
+      payload.append('experienceDate', formData.date);
+      payload.append('comments', formData.feedback);
+      payload.append('attachment', file);
+
+      const res = await fetch('http://localhost:5000/api/feedback', {
+        method: 'POST',
+        body: payload
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setSubmitted(true);
+        fetchReviews();
+      } else if (data.fieldErrors) {
+        const details = Object.values(data.fieldErrors).join(' ');
+        setErrorMessage(`${data.message || 'Validation failed.'} ${details}`);
+      } else {
+        setErrorMessage(data.message || 'Something went wrong submitting your feedback. Please check your inputs and try again.');
+      }
+    } catch (err) {
+      console.error('Error submitting feedback:', err);
+      setErrorMessage('Network error. Please try again.');
+    }
+  };
+
+  // Guard against non-array values before rendering
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
+
   return (
-    <section id="feedback-section" style={{ padding: '4rem 1.5rem', maxWidth: '850px', margin: '0 auto', color: '#fff' }}>
-      
-      {/* SECTION HEADER */}
-      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem', background: 'linear-gradient(135deg, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          Community Hub & Support Center
-        </h2>
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem' }}>
-          Share your review with the community or submit technical feedback directly to our engineering team.
-        </p>
+    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', color: '#fff' }}>
+      <h2>Detailed User Feedback & Reviews</h2>
 
-        {/* ADMIN SWITCH BUTTON */}
-        <div style={{ marginTop: '1rem' }}>
-          <button
-            onClick={onSwitchToAdmin}
-            style={{
-              padding: '0.4rem 0.9rem',
-              borderRadius: '20px',
-              border: '1px solid rgba(255,255,255,0.2)',
-              background: 'rgba(255,255,255,0.05)',
-              color: 'rgba(255,255,255,0.8)',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
+      {submitted ? (
+        <div style={{ padding: '1rem', background: '#10b981', borderRadius: '8px', marginBottom: '1.5rem' }}>
+          Thank you for your feedback!
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem', marginBottom: '2rem' }}>
+          {errorMessage && (
+            <div style={{ padding: '0.8rem', borderRadius: '6px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgb(239, 68, 68)', color: 'rgb(248, 113, 113)', fontSize: '0.9rem' }}>
+              {errorMessage}
+            </div>
+          )}
+          <input
+            type="text"
+            name="name"
+            placeholder="e.g. Ubaidullah"
+            value={formData.name}
+            onChange={handleChange}
+            style={{ padding: '0.8rem', borderRadius: '6px', border: '1px solid #374151', background: '#1f2937', color: '#fff' }}
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Your Email"
+            value={formData.email}
+            onChange={handleChange}
+            style={{ padding: '0.8rem', borderRadius: '6px', border: '1px solid #374151', background: '#1f2937', color: '#fff' }}
+          />
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            style={{ padding: '0.8rem', borderRadius: '6px', border: '1px solid #374151', background: '#1f2937', color: '#fff' }}
           >
-            🔒 Switch to Admin Moderation
+            <option value="UI UX Bug">UI UX Bug</option>
+            <option value="Feature Request">Feature Request</option>
+            <option value="General Feedback">General Feedback</option>
+          </select>
+          <input
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            style={{ padding: '0.8rem', borderRadius: '6px', border: '1px solid #374151', background: '#1f2937', color: '#fff' }}
+          />
+          <input
+            type="file"
+            name="attachment"
+            onChange={handleFileChange}
+            style={{ color: '#9ca3af' }}
+          />
+          <textarea
+            name="feedback"
+            placeholder="Describe your feedback"
+            value={formData.feedback}
+            onChange={handleChange}
+            rows={4}
+            style={{ padding: '0.8rem', borderRadius: '6px', border: '1px solid #374151', background: '#1f2937', color: '#fff' }}
+          />
+          <button
+            type="submit"
+            style={{ padding: '0.8rem', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            Submit Review
           </button>
-        </div>
-      </div>
-
-      {/* CLEAN TOGGLE BAR */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '0.5rem',
-        background: 'rgba(17, 20, 24, 0.8)',
-        padding: '0.4rem',
-        borderRadius: '12px',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        marginBottom: '2rem'
-      }}>
-        <button
-          onClick={() => setActiveSubTab('quick')}
-          style={{
-            flex: 1,
-            padding: '0.75rem 1rem',
-            borderRadius: '8px',
-            border: 'none',
-            background: activeSubTab === 'quick' ? '#6366f1' : 'transparent',
-            color: activeSubTab === 'quick' ? '#fff' : 'rgba(255,255,255,0.6)',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          ⭐ Public Reviews
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('detailed')}
-          style={{
-            flex: 1,
-            padding: '0.75rem 1rem',
-            borderRadius: '8px',
-            border: 'none',
-            background: activeSubTab === 'detailed' ? '#6366f1' : 'transparent',
-            color: activeSubTab === 'detailed' ? '#fff' : 'rgba(255,255,255,0.6)',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-        >
-          📝 Report an Issue & Uploads
-        </button>
-      </div>
-
-      {/* SUB-TAB CONTENT 1: QUICK REVIEWS */}
-      {activeSubTab === 'quick' && (
-        <div style={{ background: 'rgba(17, 20, 24, 0.95)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <h3 style={{ marginTop: 0, marginBottom: '1rem', fontSize: '1.2rem' }}>Leave a Quick Community Review</h3>
-
-          {toast && (
-            <div style={{ padding: '0.75rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem', background: toast.type === 'success' ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)', color: toast.type === 'success' ? '#4ade80' : '#f87171' }}>
-              {toast.message}
-            </div>
-          )}
-
-          <form onSubmit={handleQuickSubmit} style={{ display: 'grid', gap: '1rem', marginBottom: '2rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <input
-                type="text"
-                placeholder="Your Name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }}
-              />
-              <input
-                type="text"
-                placeholder="Rating / Tag (e.g. 5 Stars ⭐)"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }}
-              />
-            </div>
-            <textarea
-              rows="3"
-              placeholder="Your quick feedback..."
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              style={{ width: '100%', padding: '0.7rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }}
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              style={{ padding: '0.75rem', borderRadius: '8px', border: 'none', background: '#6366f1', color: '#fff', fontWeight: 600, cursor: 'pointer' }}
-            >
-              {loading ? 'Posting...' : 'Post Public Review'}
-            </button>
-          </form>
-
-          {/* PUBLIC REVIEW FEED */}
-          <h4 style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1.5rem', marginBottom: '1rem' }}>Public Community Feed</h4>
-          
-          {/* DATA FETCHING STATES */}
-          {isReviewsLoading ? (
-            <>
-              <SkeletonCard />
-              <SkeletonCard />
-            </>
-          ) : reviews.length === 0 ? (
-            <EmptyState />
-          ) : (
-            <div style={{ display: 'grid', gap: '0.75rem', maxHeight: '300px', overflowY: 'auto' }}>
-              {reviews.map((rev) => (
-                <div key={rev.id} style={{ padding: '1rem', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
-                    <strong style={{ color: '#818cf8', fontSize: '0.95rem' }}>{rev.name}</strong>
-                    <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>{rev.email}</span>
-                  </div>
-                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>"{rev.message}"</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        </form>
       )}
 
-      {/* SUB-TAB CONTENT 2: DETAILED MULTI-FIELD FORM */}
-      {activeSubTab === 'detailed' && (
-        <UserFeedbackForm />
+      <h3>Submitted Feedback</h3>
+      {loading ? (
+        <div>Loading feedback...</div>
+      ) : safeReviews.length === 0 ? (
+        <div>No feedback recorded yet.</div>
+      ) : (
+        <div style={{ display: 'grid', gap: '0.75rem', maxHeight: '300px', overflowY: 'auto' }}>
+          {safeReviews.map((rev) => (
+            <div key={rev.id || rev._id || Math.random()} style={{ padding: '1rem', borderRadius: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
+                <strong>{rev.fullName || rev.name || 'Anonymous'}</strong>
+                <span style={{ fontSize: '0.8rem', color: '#818cf8' }}>{rev.category}</span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: '#d1d5db' }}>{rev.comments || rev.feedback}</p>
+            </div>
+          ))}
+        </div>
       )}
-
-    </section>
+    </div>
   );
 }
-
-export default CrudDashboard;
