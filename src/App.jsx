@@ -15,13 +15,9 @@ import Footer from "./Footer.jsx";
 import AuthModal from "./AuthModal.jsx";
 import Dashboard from "./Dashboard.jsx";
 
-// Week 3 Task 1 Component
+// Feedback & Feature Components
 import UserFeedbackForm from "./UserFeedbackForm.jsx";
-
-// Week 4 Task 1 Component
 import FileUpload from "./components/FileUpload.jsx";
-
-// Week 4 Task 2 Component
 import AnalyticsDashboard from "./components/AnalyticsDashboard.jsx";
 
 function MainContent() {
@@ -31,75 +27,85 @@ function MainContent() {
     <div className="app-container" style={{ background: '#0a0c10', minHeight: '100vh', color: '#fff' }}>
       <Navbar />
 
-      {/* Main Landing View */}
-      {activeTab === 'landing' && (
+      {/* GLOBAL ADMIN VIEW: When activated, replaces normal page content */}
+      {isAdminView ? (
+        <div style={{ paddingTop: '5rem', paddingBottom: '3rem', maxWidth: '1000px', margin: '0 auto' }}>
+          <AdminPanel onSwitchToPublic={() => setIsAdminView(false)} />
+        </div>
+      ) : (
         <>
-          <div id="home"><Hero /></div>
-          <div id="features"><Features /></div>
-          <AiModelsList />
+          {/* Main Landing View */}
+          {activeTab === 'landing' && (
+            <>
+              <div id="home"><Hero /></div>
+              <div id="features"><Features /></div>
+              <AiModelsList />
 
-          {/* Standalone File Upload Section */}
-          <div id="upload" style={{ padding: '2rem 1rem' }}>
-            <FileUpload />
-          </div>
+              {/* Standalone File Upload Section */}
+              <div id="upload" style={{ padding: '2rem 1rem' }}>
+                <FileUpload />
+              </div>
 
-          {/* Week 4 Task 2 Data Visualization Section */}
-          <div id="analytics" style={{ padding: '2rem 1rem' }}>
-            <AnalyticsDashboard />
-          </div>
+              {/* Data Visualization Section */}
+              <div id="analytics" style={{ padding: '2rem 1rem' }}>
+                <AnalyticsDashboard />
+              </div>
 
-          {isAdminView ? (
-            <AdminPanel onSwitchToPublic={() => setIsAdminView(false)} />
-          ) : (
-            <CrudDashboard onSwitchToAdmin={() => setIsAdminView(true)} />
+              {/* Public Reviews & Feedback Display */}
+              <div id="reviews" style={{ padding: '2rem 1rem' }}>
+                <CrudDashboard onSwitchToAdmin={() => setIsAdminView(true)} />
+              </div>
+
+              <div id="pricing"><Pricing /></div>
+              <div id="contact"><Contact /></div>
+            </>
           )}
 
-          <div id="pricing"><Pricing /></div>
-          <div id="contact"><Contact /></div>
+          {/* Standalone Upload Tab View */}
+          {activeTab === 'upload' && (
+            <div style={{ paddingTop: '5rem', paddingBottom: '3rem' }}>
+              <FileUpload />
+            </div>
+          )}
+
+          {/* Standalone Analytics Tab View */}
+          {activeTab === 'analytics' && (
+            <div style={{ paddingTop: '5rem', paddingBottom: '3rem' }}>
+              <AnalyticsDashboard />
+            </div>
+          )}
+
+          {/* Dedicated Feedback Submission Form */}
+          {activeTab === 'feedback' && (
+            <div style={{ paddingTop: '5rem', paddingBottom: '3rem' }}>
+              <UserFeedbackForm />
+            </div>
+          )}
+
+          {/* Authentication Route */}
+          {activeTab === 'auth' && (
+            <AuthModal 
+              onLoginSuccess={(loggedInUser) => {
+                setUser(loggedInUser);
+                setActiveTab('dashboard');
+              }} 
+            />
+          )}
+
+          {/* Protected Dashboard Route */}
+          {activeTab === 'dashboard' && (
+            user ? (
+              <Dashboard user={user} />
+            ) : (
+              <AuthModal 
+                onLoginSuccess={(loggedInUser) => {
+                  setUser(loggedInUser);
+                  setActiveTab('dashboard');
+                }} 
+              />
+            )
+          )}
         </>
-      )}
-
-      {/* Standalone Upload Tab View */}
-      {activeTab === 'upload' && (
-        <div style={{ paddingTop: '5rem', paddingBottom: '3rem' }}>
-          <FileUpload />
-        </div>
-      )}
-
-      {/* Standalone Analytics Tab View */}
-      {activeTab === 'analytics' && (
-        <div style={{ paddingTop: '5rem', paddingBottom: '3rem' }}>
-          <AnalyticsDashboard />
-        </div>
-      )}
-
-      {/* Feedback Form View */}
-      {activeTab === 'feedback' && (
-        <UserFeedbackForm />
-      )}
-
-      {/* Authentication Route */}
-      {activeTab === 'auth' && (
-        <AuthModal 
-          onLoginSuccess={(loggedInUser) => {
-            setUser(loggedInUser);
-            setActiveTab('dashboard');
-          }} 
-        />
-      )}
-
-      {/* Protected Dashboard Route */}
-      {activeTab === 'dashboard' && (
-        user ? (
-          <Dashboard user={user} />
-        ) : (
-          <AuthModal 
-            onLoginSuccess={(loggedInUser) => {
-              setUser(loggedInUser);
-              setActiveTab('dashboard');
-            }} 
-          />
-        )
       )}
 
       <Footer />
