@@ -14,7 +14,8 @@ function AiModelsList() {
         return res.json();
       })
       .then((data) => {
-        setModels(data);
+        // Ensure fetched data is an array before updating state
+        setModels(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch((err) => {
@@ -23,11 +24,16 @@ function AiModelsList() {
       });
   }, []);
 
+  // Safeguard against non-array model states during test mocks or API errors
+  const safeModels = Array.isArray(models) ? models : [];
+
   // Filter models based on search query match with model ID or pipeline/task type
-  const filteredModels = models.filter((model) =>
-    model.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    model.pipeline_tag?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredModels = safeModels.filter((model) => {
+    const query = searchQuery.toLowerCase();
+    const idMatches = model?.id?.toLowerCase().includes(query);
+    const pipelineMatches = model?.pipeline_tag?.toLowerCase().includes(query);
+    return idMatches || pipelineMatches;
+  });
 
   return (
     <section className="features-section" style={{ padding: '4rem 2rem', color: '#fff', textAlign: 'center' }}>
@@ -115,7 +121,7 @@ function AiModelsList() {
                     {model.pipeline_tag || 'Core Pipeline'}
                   </div>
                   <h4 style={{ margin: '0 0 1.5rem 0', fontSize: '1.2rem', fontWeight: 600, wordBreak: 'break-all', color: '#fff', lineHeight: '1.4' }}>
-                    {model.id.split('/')[1] || model.id}
+                    {model.id ? (model.id.split('/')[1] || model.id) : 'Unknown Model'}
                   </h4>
                 </div>
                 
@@ -124,7 +130,7 @@ function AiModelsList() {
                     Author: <span style={{ color: 'rgba(255, 255, 255, 0.8)' }}>{model.author || 'OpenSource'}</span>
                   </div>
                   <div style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.5)' }}>
-                    Downloads: <span style={{ color: '#a855f7', fontWeight: 600 }}>{model.downloads.toLocaleString()}</span>
+                    Downloads: <span style={{ color: '#a855f7', fontWeight: 600 }}>{model.downloads ? model.downloads.toLocaleString() : 0}</span>
                   </div>
                 </div>
               </a>
