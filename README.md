@@ -2,7 +2,7 @@
 
 A modern, responsive, full-stack AI-powered web application built using **React.js**, **Vite**, **Express.js**, **bcrypt.js**, **multer**, **Recharts**, and **JWT Authentication**. This project was completed as part of a **Full Stack Internship** and demonstrates modern frontend development, REST API integration, CRUD operations, secure authentication, route guarding, global state management, form validation, file uploads, data visualization, and responsive UI/UX design.
 
-The project evolved across eight key milestones:
+The project evolved across nine key milestones:
 
 - **Week 1 – Task 1:** Consume a Public API (Responsive AI Landing Page)
 - **Week 1 – Task 2:** Responsive UI From a Design Brief (Hugging Face API Integration)
@@ -12,6 +12,7 @@ The project evolved across eight key milestones:
 - **Week 3 – Task 2:** Forms, Validation & Real User Feedback (Multi-Field Form, File Uploads, Dual Validation)
 - **Week 4 – Task 1:** File & Media Upload Engine (Drag-and-Drop UI, Multer Storage Pipeline)
 - **Week 4 – Task 2:** Real-Time Analytics & Data Visualization Dashboard (Recharts, Server-Side Aggregation API)
+- **Week 5 – Task 1:** Testing Across the Stack (Admin Security, Feedback Consolidation, Database Management Panel)
 
 ---
 
@@ -34,6 +35,7 @@ The platform includes:
 - Drag-and-drop file & media upload engine with progress tracking
 - Real-time analytics dashboard with area, pie, and bar chart visualizations
 - Real-time server active-session logging in the terminal
+- Consolidated, tested admin database management panel with restored access security
 
 ---
 
@@ -290,6 +292,54 @@ Together, these two tasks form a complete cycle: Task 1 gives users the power to
 
 ---
 
+## 🧪 Week 5 – Task 1: Testing Across the Stack
+
+### 🎯 Objective
+
+Consolidate administrative controls, harden access to sensitive data, and optimize full-stack data management, backed by a dedicated frontend and backend test suite.
+
+### ✨ Features & Implementation
+
+- **Restored and Secured Admin Mode:**
+  Integrated a password verification modal to block unauthorized access to the admin console, while establishing a robust interface for managing user feedback and contact inquiries.
+
+- **Streamlined Feedback Submissions:**
+  Made file attachments optional on the feedback form and resolved data mapping errors between frontend forms and the backend API, ensuring a smooth, consistent submission experience regardless of whether an attachment is included.
+
+- **Enhanced Database Management Panel:**
+  Added improved editing, deleting, and data visualization capabilities to the admin panel, keeping feedback and contact records synchronized across both administrative and public views.
+
+- **Cross-Stack Test Suite:**
+  Introduced dedicated test directories on both the frontend and backend to validate API behavior, component rendering, and end-to-end user flows.
+  - `server/tests/api.test.js` — Backend API endpoint tests (auth, CRUD, feedback, uploads, analytics)
+  - `src/__tests__/components.test.jsx` — Component-level rendering and interaction tests
+  - `src/__tests__/e2eFlow.test.jsx` — End-to-end flow tests covering multi-step user journeys
+  - `src/setupTests.js` — Shared test environment configuration
+  - `vite.config.js` — Added/updated to support the test runner alongside the Vite dev server
+
+### 🚀 Skills Demonstrated
+
+- Backend and frontend test suite design
+- Admin authentication & access control hardening
+- Data mapping consistency between client and server
+- Admin panel CRUD & data visualization refinement
+- Full-stack QA and regression prevention
+
+### 📌 Week 5 File Change Summary
+
+| File Path | Status | Task | Key Purpose |
+| --- | --- | --- | --- |
+| `server/tests/api.test.js` | **Created** | Task 1 | Backend API test coverage |
+| `src/__tests__/components.test.jsx` | **Created** | Task 1 | Component rendering/interaction tests |
+| `src/__tests__/e2eFlow.test.jsx` | **Created** | Task 1 | End-to-end user flow tests |
+| `src/setupTests.js` | **Created** | Task 1 | Test environment setup |
+| `vite.config.js` | **Created/Updated** | Task 1 | Test runner configuration |
+| `AdminPanel.jsx` | **Updated** | Task 1 | Restored password verification modal, improved CRUD & data visualization |
+| `UserFeedbackForm.jsx` | **Updated** | Task 1 | Optional file attachments, corrected field mapping to backend API |
+| `server/index.js` | **Updated** | Task 1 | Fixed feedback/contact data mapping to keep records synchronized |
+
+---
+
 ## 📂 Complete Project Structure
 
 ```
@@ -299,21 +349,26 @@ AI-LANDING-PAGE/
 ├── node_modules/
 │
 ├── server/
-│   └── index.js             # Express backend: JWT auth, bcrypt, multer file storage,
-│                             # /api/upload, /api/analytics aggregation, dual-validation guards,
-│                             # and terminal logging
+│   ├── tests/
+│   │   └── api.test.js       # Backend API test suite (Week 5)
+│   └── index.js               # Express backend: JWT auth, bcrypt, multer file storage,
+│                               # /api/upload, /api/analytics aggregation, dual-validation guards,
+│                               # terminal logging, and synced feedback/contact data mapping
 │
 ├── src/
+│   ├── __tests__/
+│   │   ├── components.test.jsx # Component rendering/interaction tests (Week 5, NEW)
+│   │   └── e2eFlow.test.jsx    # End-to-end user flow tests (Week 5, NEW)
 │   ├── components/
-│   │   ├── AnalyticsDashboard.jsx # Recharts analytics dashboard (area/pie/bar charts) (NEW)
+│   │   ├── AnalyticsDashboard.jsx # Recharts analytics dashboard (area/pie/bar charts)
 │   │   ├── EmptyState.jsx    # Reusable fallback card for zero-data states
-│   │   ├── FileUpload.jsx    # Drag-and-drop upload UI with progress tracking (NEW)
+│   │   ├── FileUpload.jsx    # Drag-and-drop upload UI with progress tracking
 │   │   └── SkeletonLoader.jsx # Animated shimmer cards for async loading
 │   ├── context/
 │   │   └── AppContext.jsx    # Global React Context provider & useApp hook
-│   ├── AdminPanel.jsx        # Protected admin moderation panel
+│   ├── AdminPanel.jsx        # Protected admin moderation panel (password modal, enhanced CRUD) (UPDATED)
 │   ├── AiModelsList.jsx      # Live model explorer using Hugging Face API
-│   ├── App.jsx               # Root layout wrapped in <AppProvider>, view router, and route guard logic (UPDATED)
+│   ├── App.jsx               # Root layout wrapped in <AppProvider>, view router, and route guard logic
 │   ├── AuthModal.jsx         # Client-validated Signup & Login modal form
 │   ├── Contact.jsx           # Contact section
 │   ├── CrudDashboard.jsx     # Unified Community Hub & Support Center with tabs, using global store
@@ -325,12 +380,14 @@ AI-LANDING-PAGE/
 │   ├── main.jsx               # React entry point
 │   ├── Navbar.jsx             # Navigation bar using direct global state
 │   ├── Pricing.jsx            # Subscription pricing tiers
-│   └── UserFeedbackForm.jsx   # Multi-field feedback form with file upload & validation
+│   ├── setupTests.js          # Shared test environment configuration (Week 5, NEW)
+│   └── UserFeedbackForm.jsx   # Multi-field feedback form with optional file upload & validation (UPDATED)
 │
 ├── uploads/                    # Static file storage directory (feedback attachments + Task 1 uploads)
 ├── index.html                 # Main HTML entry point
 ├── package.json               # Dependencies (express, cors, jsonwebtoken, bcryptjs, multer, recharts, vite, react)
 ├── package-lock.json          # Automatically generated dependency lock file
+├── vite.config.js             # Vite build & test runner configuration (Week 5, NEW)
 └── README.md                  # Project documentation
 ```
 
@@ -342,7 +399,7 @@ AI-LANDING-PAGE/
 |------|---------------------------|-------------|
 | **Public Visitor** | None | Submit ratings & feedback, read community feedback |
 | **Registered User** | Created via Signup | Access protected `/dashboard` & session persistence |
-| **Administrator** | Password: `admin123` | Full CRUD access (Create, Read, Update, Delete) |
+| **Administrator** | Password: `admin123` (verified via password modal) | Full CRUD access (Create, Read, Update, Delete) |
 
 ---
 
@@ -357,7 +414,7 @@ AI-LANDING-PAGE/
 | POST | `/api/auth/login` | Public | Authenticate user & issue signed JWT |
 | POST | `/api/auth/logout` | User | Clear session from active tracking |
 | GET | `/api/auth/me` | Protected | Verify user JWT token and fetch profile |
-| POST | `/api/admin/login` | Admin | Authenticate admin password (`admin123`) |
+| POST | `/api/admin/login` | Admin | Authenticate admin password (`admin123`) via password modal |
 | PUT | `/api/contacts/:id` | **Admin Only** | Update existing record (Requires JWT) |
 | DELETE | `/api/contacts/:id` | **Admin Only** | Remove review from database (Requires JWT) |
 | GET | `/api/admin/active-users` | Admin | View active sessions and real-time logs |
@@ -379,6 +436,7 @@ AI-LANDING-PAGE/
 **Frontend:** React.js, Vite, JavaScript (ES6+), HTML5, CSS3, React Context API, HTML5 Drag & Drop API, Recharts
 **Backend:** Express.js, Node.js, JSON Web Token (JWT), bcrypt.js, multer, CORS
 **API:** Hugging Face Models API, Fetch API
+**Testing:** Frontend and backend test suites for API, component, and end-to-end coverage
 
 ---
 
@@ -442,7 +500,7 @@ While `node server/index.js` is running in Terminal 1, all authentication and ma
 
 ---
 
-## 🧪 Testing Instructions (Week 3 & Week 4)
+## 🧪 Testing Instructions (Week 3, Week 4 & Week 5)
 
 ### Prerequisites
 
@@ -478,7 +536,7 @@ npm run dev
 **4. Testing Multi-Field Form Validation & Uploads (Task 2)**
 - Go to the Report an Issue & Uploads tab inside the dashboard.
 - Attempt submitting an empty form to observe field-specific error messages.
-- Complete all fields (including selecting a category, date, and attaching a file) and submit.
+- Complete all fields (including selecting a category and date) and submit both with and without an attachment to confirm attachments are now optional.
 - Verify the loading state on the submission button and the resulting feedback toast banner.
 
 **5. Testing the Drag-and-Drop File Upload Engine (Week 4, Task 1)**
@@ -492,6 +550,17 @@ npm run dev
 - Confirm the four metric stat cards (uptime, revenue, users, processed files) render with live values from `GET /api/analytics`.
 - Confirm the area, pie/donut, and bar charts render correctly and resize responsively when the browser window is resized or viewed on mobile.
 - Use the category filter dropdown (All Metrics, Revenue, Active Users, Storage) and confirm the charts re-fetch and update based on the selected `?category=` query parameter.
+
+**7. Testing Admin Access Security & Data Sync (Week 5, Task 1)**
+- Attempt to open the Admin Panel without entering the password and confirm access is blocked by the verification modal.
+- Enter the correct admin password (`admin123`) and confirm the panel unlocks with full CRUD access.
+- Submit a feedback record with no attachment and confirm it maps correctly into both the admin panel and public views without errors.
+- Edit and delete a record from the enhanced Database Management Panel and confirm it stays synchronized across admin and public views.
+
+**8. Running the Automated Test Suite (Week 5, Task 1)**
+- Run backend API tests: `npm test --prefix server` (or the configured test script for `server/tests/api.test.js`).
+- Run frontend component and end-to-end tests: `npm test` (executes `src/__tests__/components.test.jsx` and `src/__tests__/e2eFlow.test.jsx` via the Vite-configured test runner).
+- Confirm all suites pass before merging changes.
 
 ---
 
@@ -511,6 +580,8 @@ npm run dev
 
 **Data Visualization & Analytics:** Recharts (Area, Pie, Bar Charts), Server-Side Data Aggregation, Query-Parameter-Driven Filtering, Responsive Chart Design
 
+**Testing & QA:** Backend API Testing, Component & Interaction Testing, End-to-End Flow Testing, Test Environment Configuration
+
 **Software Engineering:** Project Structure, State Management, Authentication Flow, Error Handling, Clean Code Organization
 
 ---
@@ -529,6 +600,7 @@ npm run dev
 - Bookmark favorite AI models
 - Exportable analytics reports (CSV/PDF)
 - Cloud object storage for uploaded files (e.g., S3) instead of local disk storage
+- Expanded test coverage (visual regression, load testing)
 
 ---
 
