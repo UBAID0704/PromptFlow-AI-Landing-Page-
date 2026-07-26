@@ -3,7 +3,8 @@ import { useApp } from './context/AppContext.jsx';
 import { SkeletonCard } from './components/SkeletonLoader.jsx';
 import { EmptyState } from './components/EmptyState.jsx';
 
-const API_URL = 'http://localhost:5000/api/contacts';
+const CONTACTS_API = 'http://localhost:5000/api/contacts';
+const FEEDBACK_API = 'http://localhost:5000/api/feedback';
 const LOGIN_URL = 'http://localhost:5000/api/admin/login';
 
 function AdminPanel({ onSwitchToPublic }) {
@@ -13,20 +14,23 @@ function AdminPanel({ onSwitchToPublic }) {
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState(null);
 
-  const [items, setItems] = useState([]);
+  const [activeAdminTab, setActiveAdminTab] = useState('feedback');
+
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Edit State
-  const [editingId, setEditingId] = useState(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
+  // Dedicated Inquiry Edit State (No Rating)
+  const [editingInquiryId, setEditingInquiryId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editMessage, setEditMessage] = useState('');
 
   useEffect(() => {
     if (token) {
-      fetchItems();
+      fetchAllData();
     }
   }, [token]);
 
@@ -40,10 +44,9 @@ function AdminPanel({ onSwitchToPublic }) {
         body: JSON.stringify({ password: passwordInput })
       });
 
-      // Safely check content type before parsing as JSON
       const contentType = res.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Server returned an invalid response (404 Page or Backend Offline). Please restart your backend server with: node server/index.js");
+        throw new Error("Server returned an invalid response (Backend Offline or 404).");
       }
 
       const data = await res.json();
@@ -62,61 +65,117 @@ function AdminPanel({ onSwitchToPublic }) {
     setToken('');
   };
 
-  const fetchItems = async () => {
+  const fetchAllData = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(API_URL);
-      if (!res.ok) throw new Error('Could not fetch database records.');
-      const data = await res.json();
-      setItems(data);
+      const [fbRes, inqRes] = await Promise.all([
+        fetch(FEEDBACK_API),
+        fetch(CONTACTS_API)
+      ]);
+
+      if (fbRes.ok) {
+        const fbData = await fbRes.json();
+        setFeedbacks(Array.isArray(fbData) ? fbData : fbData.reviews || []);
+      }
+
+      if (inqRes.ok) {
+        const inqData = await inqRes.json();
+        setInquiries(Array.isArray(inqData) ? inqData : inqData.inquiries || []);
+      }
     } catch (err) {
-      setError(err.message);
+      setError('Could not fetch database records.');
     } finally {
       setLoading(false);
     }
   };
 
-  const startEdit = (item) => {
-    setEditingId(item.id);
-    setName(item.name);
-    setEmail(item.email);
-    setMessage(item.message);
+  const handleDeleteFeedback = async (item) => {
+    const targetId = item._id || item.id;
+    if (!targetId) return;
+
+    if (!window.confirm('Delete this feedback entry?')) return;
+
+    setActionLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${FEEDBACK_API}/${targetId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!res.ok) throw new Error('Failed to delete feedback entry.');
+
+      setFeedbacks(prev => prev.filter(fb => (fb._id || fb.id) !== targetId));
+      if (fetchReviews) fetchReviews();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const cancelEdit = () => {
-    setEditingId(null);
-    setName('');
-    setEmail('');
-    setMessage('');
+  const handleDeleteInquiry = async (item) => {
+    const targetId = item._id || item.id;
+    if (!targetId) return;
+
+    if (!window.confirm('Delete this inquiry?')) return;
+
+    setActionLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${CONTACTS_API}/${targetId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!res.ok) throw new Error('Failed to delete inquiry.');
+
+      setInquiries(prev => prev.filter(inq => (inq._id || inq.id) !== targetId));
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setActionLoading(false);
+    }
   };
 
-  const handleUpdate = async (e) => {
+  const startEditInquiry = (item) => {
+    setEditingInquiryId(item._id || item.id);
+    setEditName(item.name || item.fullName || '');
+    setEditEmail(item.email && item.email.includes('@') ? item.email : '');
+    setEditMessage(item.message || item.inquiry || item.comments || '');
+  };
+
+  const cancelEditInquiry = () => {
+    setEditingInquiryId(null);
+    setEditName('');
+    setEditEmail('');
+    setEditMessage('');
+  };
+
+  const handleUpdateInquiry = async (e) => {
     e.preventDefault();
     setActionLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(`${API_URL}/${editingId}`, {
+      const res = await fetch(`${CONTACTS_API}/${editingInquiryId}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ name, email, message })
+        body: JSON.stringify({ 
+          name: editName, 
+          email: editEmail, 
+          message: editMessage 
+        })
       });
-      
-      const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Server returned an invalid response.");
-      }
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Update action failed.');
+      if (!res.ok) throw new Error('Failed to update entry.');
 
-      cancelEdit();
-      await fetchItems();
-      fetchReviews(); // Sync public state
+      cancelEditInquiry();
+      await fetchAllData();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -124,153 +183,124 @@ function AdminPanel({ onSwitchToPublic }) {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this record?')) return;
-
-    setActionLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_URL}/${id}`, { 
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Server returned an invalid response.");
-      }
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Delete action failed.');
-
-      await fetchItems();
-      fetchReviews(); // Sync public state
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setActionLoading(false);
-    }
-  };
-
-  // --- SHOW UNAUTHENTICATED LOGIN FORM ---
   if (!token) {
     return (
       <section style={{ padding: '3rem 2rem', color: '#fff', textAlign: 'center' }}>
-        <div style={{ maxWidth: '400px', margin: '0 auto', background: 'rgba(17, 20, 24, 0.8)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <h3 style={{ marginTop: 0, color: '#fff' }}>🔒 Admin Authentication</h3>
-          <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>Enter password to access database management controls.</p>
+        <div style={{ maxWidth: '400px', margin: '0 auto', background: 'rgba(17, 20, 24, 0.95)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <h3 style={{ marginTop: 0, color: '#fff' }}>🔒 Admin Verification</h3>
+          <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)' }}>Enter password to access admin console.</p>
 
-          {loginError && (
-            <div style={{ marginBottom: '1rem', padding: '0.6rem', borderRadius: '6px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#f87171', fontSize: '0.85rem' }}>
-              {loginError}
-            </div>
-          )}
+          {loginError && <div style={{ marginBottom: '1rem', padding: '0.6rem', borderRadius: '6px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#f87171', fontSize: '0.85rem' }}>{loginError}</div>}
 
           <form onSubmit={handleLogin} style={{ textAlign: 'left' }}>
             <div style={{ marginBottom: '1.25rem' }}>
               <label style={{ display: 'block', marginBottom: '0.4rem', fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)' }}>Admin Password</label>
-              <input 
-                type="password" 
-                value={passwordInput} 
-                onChange={e => setPasswordInput(e.target.value)} 
-                placeholder="Enter password..." 
-                style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }} 
-                required 
-              />
+              <input type="password" value={passwordInput} onChange={e => setPasswordInput(e.target.value)} placeholder="Enter password..." style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }} required />
             </div>
-            <button type="submit" style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: 'none', background: '#6366f1', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>
-              Unlock Console
-            </button>
+            <button type="submit" style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: 'none', background: '#6366f1', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Unlock Dashboard</button>
           </form>
-
-          <button onClick={onSwitchToPublic} style={{ marginTop: '1.25rem', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>
-            ⬅️ Return to Public Site
-          </button>
+          <button onClick={onSwitchToPublic} style={{ marginTop: '1.25rem', background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline' }}>⬅️ Return to Public Site</button>
         </div>
       </section>
     );
   }
 
-  // --- SHOW AUTHENTICATED MANAGEMENT PANEL ---
   return (
-    <section style={{ padding: '3rem 2rem', color: '#fff', textAlign: 'center' }}>
-      <div className="features-header">
-        <span className="hero-tag" style={{ background: 'rgba(34, 197, 94, 0.2)', color: '#4ade80', border: '1px solid rgba(34, 197, 94, 0.4)' }}>
-          AUTHENTICATED ADMIN
-        </span>
-        <h2>Database Management Panel</h2>
+    <section style={{ padding: '2rem 1rem', color: '#fff' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <h2>🛡️ Verified Admin Console</h2>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button onClick={onSwitchToPublic} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', cursor: 'pointer' }}>⬅️ Back to Public View</button>
+          <button onClick={handleLogout} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', cursor: 'pointer' }}>🚪 Log Out</button>
+        </div>
       </div>
 
-      <div style={{ maxWidth: '750px', margin: '0 auto', textAlign: 'left' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-          <button onClick={onSwitchToPublic} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', cursor: 'pointer', fontSize: '0.85rem' }}>
-            ⬅️ Back to Public View
-          </button>
-          <button onClick={handleLogout} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: 'rgba(239, 68, 68, 0.2)', color: '#f87171', cursor: 'pointer', fontSize: '0.85rem' }}>
-            🚪 Log Out Admin
-          </button>
-        </div>
+      {error && <div style={{ marginBottom: '1.5rem', padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#f87171' }}>{error}</div>}
 
-        {error && (
-          <div style={{ marginBottom: '1.5rem', padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#f87171' }}>
-            <strong>Error:</strong> {error}
-          </div>
-        )}
+      <div style={{ display: 'flex', gap: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
+        <button onClick={() => setActiveAdminTab('feedback')} style={{ padding: '0.6rem 1.2rem', borderRadius: '8px', border: 'none', background: activeAdminTab === 'feedback' ? '#6366f1' : 'rgba(255,255,255,0.05)', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>Feedback Responses ({feedbacks.length})</button>
+        <button onClick={() => setActiveAdminTab('inquiries')} style={{ padding: '0.6rem 1.2rem', borderRadius: '8px', border: 'none', background: activeAdminTab === 'inquiries' ? '#6366f1' : 'rgba(255,255,255,0.05)', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>Inquiries ({inquiries.length})</button>
+      </div>
 
-        {/* Inline Edit Form */}
-        {editingId && (
-          <form onSubmit={handleUpdate} style={{ background: 'rgba(17, 20, 24, 0.9)', padding: '1.25rem', borderRadius: '12px', border: '1px solid #6366f1', marginBottom: '1.5rem' }}>
-            <h4 style={{ marginTop: 0, color: '#6366f1', fontSize: '1rem' }}>📝 Edit Record #{editingId}</h4>
-            <div style={{ display: 'grid', gap: '0.75rem', gridTemplateColumns: '1fr 1fr' }}>
-              <input type="text" value={name} onChange={e => setName(e.target.value)} style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff' }} required />
-              <input type="text" value={email} onChange={e => setEmail(e.target.value)} style={{ padding: '0.6rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff' }} required />
-            </div>
-            <textarea value={message} onChange={e => setMessage(e.target.value)} rows="2" style={{ width: '100%', marginTop: '0.75rem', padding: '0.6rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }} required />
-            <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
-              <button type="submit" disabled={actionLoading} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: '#6366f1', color: '#fff', cursor: 'pointer', fontSize: '0.85rem' }}>
-                {actionLoading ? 'Saving...' : 'Save Changes'}
-              </button>
-              <button type="button" onClick={cancelEdit} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', cursor: 'pointer', fontSize: '0.85rem' }}>
-                Cancel
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* LOADING & EMPTY STATES */}
-        {loading ? (
-          <>
-            <SkeletonCard />
-            <SkeletonCard />
-          </>
-        ) : items.length === 0 ? (
-          <EmptyState 
-            icon="📂" 
-            title="Database Empty" 
-            description="There are currently no records in the database to manage." 
-          />
+      {loading ? (
+        <><SkeletonCard /><SkeletonCard /></>
+      ) : activeAdminTab === 'feedback' ? (
+        feedbacks.length === 0 ? (
+          <EmptyState icon="📝" title="No Feedback Found" description="There are no feedback submissions." />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {items.map(item => (
-              <div key={item.id} style={{ background: 'rgba(17, 20, 24, 0.6)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
-                <div>
-                  <strong style={{ color: '#fff', fontSize: '0.95rem' }}>{item.name}</strong> 
-                  <span style={{ fontSize: '0.85rem', color: '#6366f1', marginLeft: '0.5rem' }}>({item.email})</span>
-                  <p style={{ margin: '0.35rem 0 0 0', color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem' }}>{item.message}</p>
+          <div style={{ display: 'grid', gap: '1rem' }}>
+            {feedbacks.map((fb, idx) => (
+              <div key={fb._id || fb.id || idx} style={{ background: 'rgba(17, 20, 24, 0.8)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                  <div>
+                    <strong>{fb.fullName || fb.name || 'Anonymous'}</strong>
+                    {fb.email && <span style={{ color: '#818cf8', fontSize: '0.85rem', marginLeft: '0.5rem' }}>({fb.email})</span>}
+                  </div>
+                  <span style={{ background: 'rgba(99, 102, 241, 0.2)', padding: '0.2rem 0.6rem', borderRadius: '12px', fontSize: '0.75rem', color: '#a5b4fc' }}>
+                    {fb.category || 'General'} | Rating: {fb.rating || 5}★
+                  </span>
                 </div>
-                <div style={{ display: 'flex', gap: '0.4rem' }}>
-                  <button onClick={() => startEdit(item)} disabled={actionLoading} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', padding: '0.4rem 0.65rem', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontSize: '0.8rem' }}>
-                    Edit
-                  </button>
-                  <button onClick={() => handleDelete(item.id)} disabled={actionLoading} style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '0.4rem 0.65rem', borderRadius: '6px', color: '#f87171', cursor: 'pointer', fontSize: '0.8rem' }}>
-                    Delete
-                  </button>
+                <p style={{ color: '#d1d5db', fontSize: '0.9rem', margin: '0.5rem 0' }}>{fb.comments || fb.feedback || fb.message}</p>
+                {fb.attachment && (
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <a href={fb.attachment} target="_blank" rel="noreferrer" style={{ fontSize: '0.8rem', color: '#38bdf8', textDecoration: 'underline' }}>📎 View Attachment</a>
+                  </div>
+                )}
+                <div style={{ marginTop: '0.75rem', textAlign: 'right' }}>
+                  <button onClick={() => handleDeleteFeedback(fb)} disabled={actionLoading} style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#f87171', padding: '0.35rem 0.75rem', borderRadius: '6px', fontSize: '0.8rem', cursor: 'pointer' }}>Delete Entry</button>
                 </div>
               </div>
             ))}
           </div>
-        )}
-      </div>
+        )
+      ) : (
+        inquiries.length === 0 ? (
+          <EmptyState icon="📬" title="No Inquiries Found" description="There are no contact inquiries." />
+        ) : (
+          <div style={{ display: 'grid', gap: '1rem' }}>
+            {/* INLINE EDIT FORM (CLEANED OF STARS) */}
+            {editingInquiryId && (
+              <form onSubmit={handleUpdateInquiry} style={{ background: 'rgba(17, 20, 24, 0.95)', padding: '1.25rem', borderRadius: '12px', border: '1px solid #6366f1', marginBottom: '1rem' }}>
+                <h4 style={{ marginTop: 0, color: '#6366f1' }}>📝 Edit Inquiry Entry</h4>
+                <div style={{ display: 'grid', gap: '0.75rem', gridTemplateColumns: '1fr 1fr', marginBottom: '0.75rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: '#9ca3af' }}>Name</label>
+                    <input type="text" value={editName} onChange={e => setEditName(e.target.value)} style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }} required />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: '#9ca3af' }}>Email</label>
+                    <input type="text" value={editEmail} onChange={e => setEditEmail(e.target.value)} placeholder="name@example.com" style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#9ca3af' }}>Message</label>
+                  <textarea value={editMessage} onChange={e => setEditMessage(e.target.value)} rows="2" style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', boxSizing: 'border-box' }} required />
+                </div>
+                <div style={{ marginTop: '0.75rem', display: 'flex', gap: '0.5rem' }}>
+                  <button type="submit" disabled={actionLoading} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', background: '#6366f1', color: '#fff', cursor: 'pointer' }}>{actionLoading ? 'Saving...' : 'Save Changes'}</button>
+                  <button type="button" onClick={cancelEditInquiry} style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.2)', background: 'transparent', color: '#fff', cursor: 'pointer' }}>Cancel</button>
+                </div>
+              </form>
+            )}
+
+            {inquiries.map((inq, idx) => (
+              <div key={inq._id || inq.id || idx} style={{ background: 'rgba(17, 20, 24, 0.8)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                  <div>
+                    <strong>{inq.name || inq.fullName || 'Anonymous'}</strong>
+                    {inq.email && <span style={{ color: '#9ca3af', fontSize: '0.85rem', marginLeft: '0.5rem' }}>({inq.email})</span>}
+                  </div>
+                </div>
+                <p style={{ color: '#d1d5db', fontSize: '0.9rem', margin: '0.5rem 0' }}>{inq.message || inq.inquiry || inq.comments}</p>
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '0.75rem' }}>
+                  <button onClick={() => startEditInquiry(inq)} disabled={actionLoading} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', padding: '0.35rem 0.75rem', borderRadius: '6px', color: '#fff', fontSize: '0.8rem', cursor: 'pointer' }}>Edit</button>
+                  <button onClick={() => handleDeleteInquiry(inq)} disabled={actionLoading} style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', padding: '0.35rem 0.75rem', borderRadius: '6px', color: '#f87171', fontSize: '0.8rem', cursor: 'pointer' }}>Delete Entry</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      )}
     </section>
   );
 }
