@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-const API_BASE = 'http://localhost:5000/api/auth';
+// Dynamically use Vercel environment variable or fallback to local
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 function Dashboard({ user, onLogout }) {
   const [protectedData, setProtectedData] = useState(null);
@@ -9,17 +10,27 @@ function Dashboard({ user, onLogout }) {
   useEffect(() => {
     const fetchProtectedProfile = async () => {
       const token = localStorage.getItem('userToken');
+      
+      // If no token exists, don't even attempt fetch
+      if (!token) {
+        setError('No authorization token found. Please log in.');
+        return;
+      }
+
       try {
-        const res = await fetch(`${API_BASE}/me`, {
+        const res = await fetch(`${API_BASE}/api/auth/me`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
+        
         if (!res.ok) throw new Error('Session invalid. Please log in again.');
+        
         const data = await res.json();
-        setProtectedData(data.user);
+        setProtectedData(data?.user || null);
       } catch (err) {
-        setError(err.message);
+        // Soft fallback to prevent rendering crashes
+        setError(err.message || 'Unable to connect to server.');
       }
     };
 
@@ -33,9 +44,13 @@ function Dashboard({ user, onLogout }) {
           🔒 PROTECTED USER ROUTE
         </span>
         
-        <h2 style={{ marginTop: '1.25rem', fontSize: '1.8rem' }}>Welcome back, {user?.name}!</h2>
+        {/* Optional chaining safe checks for user data */}
+        <h2 style={{ marginTop: '1.25rem', fontSize: '1.8rem' }}>
+          Welcome back, {user?.name || protectedData?.name || 'User'}!
+        </h2>
+        
         <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
-          Authenticated Account: <strong style={{ color: '#818cf8' }}>{user?.email}</strong>
+          Authenticated Account: <strong style={{ color: '#818cf8' }}>{user?.email || protectedData?.email || 'N/A'}</strong>
         </p>
 
         {error ? (
@@ -46,12 +61,12 @@ function Dashboard({ user, onLogout }) {
           <div style={{ margin: '2rem 0', padding: '1.25rem', background: 'rgba(0,0,0,0.4)', borderRadius: '12px', textAlign: 'left', border: '1px solid rgba(255,255,255,0.08)' }}>
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#4ade80', fontSize: '0.95rem' }}>✅ Bearer Token Active</h4>
             <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>
-              Your JWT session token was securely sent in request headers and verified by the Node.js server.
+              Your JWT session token was securely sent in request headers and verified by the server.
             </p>
           </div>
         )}
 
-        <button onClick={onLogout} style={{ padding: '0.65rem 1.5rem', borderRadius: '8px', border: 'none', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#f87171', fontWeight: 600, cursor: 'pointer' }}>
+        <button onClick={onLogout} style={{ padding: '0.65rem 1.5rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', color: '#f87171', fontWeight: 600, cursor: 'pointer' }}>
           🚪 Log Out & Clear Token
         </button>
       </div>
