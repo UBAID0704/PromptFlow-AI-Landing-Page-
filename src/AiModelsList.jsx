@@ -7,14 +7,12 @@ function AiModelsList() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // Fetching the top 20 downloaded AI models publicly available
     fetch('https://huggingface.co/api/models?sort=downloads&direction=-1&limit=20')
       .then((res) => {
         if (!res.ok) throw new Error('Could not synchronize with model repository.');
         return res.json();
       })
       .then((data) => {
-        // Ensure fetched data is an array before updating state
         setModels(Array.isArray(data) ? data : []);
         setLoading(false);
       })
@@ -24,10 +22,8 @@ function AiModelsList() {
       });
   }, []);
 
-  // Safeguard against non-array model states during test mocks or API errors
   const safeModels = Array.isArray(models) ? models : [];
 
-  // Filter models based on search query match with model ID or pipeline/task type
   const filteredModels = safeModels.filter((model) => {
     const query = searchQuery.toLowerCase();
     const idMatches = model?.id?.toLowerCase().includes(query);
@@ -45,7 +41,6 @@ function AiModelsList() {
         </p>
       </div>
 
-      {/* Search Input Container */}
       <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'center' }}>
         <input
           type="text"
@@ -66,7 +61,6 @@ function AiModelsList() {
         />
       </div>
 
-      {/* Conditional States Rendering */}
       {loading && (
         <div style={{ padding: '3rem', color: 'rgba(255, 255, 255, 0.6)', fontSize: '1.2rem' }}>
           <div className="spinner" style={{ marginBottom: '1rem' }}>⏳</div>
@@ -81,7 +75,6 @@ function AiModelsList() {
         </div>
       )}
 
-      {/* Grid Results display */}
       {!loading && !error && (
         <div style={{ 
           display: 'grid', 
