@@ -22,7 +22,6 @@ function AdminPanel({ onSwitchToPublic }) {
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Dedicated Inquiry Edit State (No Rating)
   const [editingInquiryId, setEditingInquiryId] = useState(null);
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
@@ -258,7 +257,6 @@ function AdminPanel({ onSwitchToPublic }) {
           <EmptyState icon="📬" title="No Inquiries Found" description="There are no contact inquiries." />
         ) : (
           <div style={{ display: 'grid', gap: '1rem' }}>
-            {/* INLINE EDIT FORM (CLEANED OF STARS) */}
             {editingInquiryId && (
               <form onSubmit={handleUpdateInquiry} style={{ background: 'rgba(17, 20, 24, 0.95)', padding: '1.25rem', borderRadius: '12px', border: '1px solid #6366f1', marginBottom: '1rem' }}>
                 <h4 style={{ marginTop: 0, color: '#6366f1' }}>📝 Edit Inquiry Entry</h4>
