@@ -8,7 +8,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Replace with your actual admin password logic
     if (password === 'admin123') {
       onAuthSuccess();
       setError('');
