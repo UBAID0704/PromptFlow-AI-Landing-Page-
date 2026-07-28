@@ -8,7 +8,6 @@ import UserFeedbackForm from '../UserFeedbackForm';
 describe('Frontend Component Test Suite', () => {
 
   beforeEach(() => {
-    // Mock global fetch response
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ success: true, message: 'Thank you for your feedback!' }),
