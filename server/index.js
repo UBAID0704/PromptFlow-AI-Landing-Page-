@@ -14,14 +14,12 @@ const JWT_SECRET = 'your_super_secret_jwt_key_2026';
 app.use(cors());
 app.use(express.json());
 
-// Ensure uploads folder exists
 const uploadsDir = './uploads';
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir);
 }
 app.use('/uploads', express.static('uploads'));
 
-// --- MULTER STORAGE CONFIGURATION ---
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/');
@@ -31,10 +29,9 @@ const storage = multer.diskStorage({
   }
 });
 
-// Multer Upload Instance for General & Standalone Uploads
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedExtensions = /jpeg|jpg|png|pdf|docx|txt|csv/;
     const allowedMimeTypes = /jpeg|jpg|png|pdf|plain|csv/;
@@ -50,13 +47,11 @@ const upload = multer({
   }
 });
 
-// In-Memory Databases
 const users = [];
 let activeSessions = [];
 let feedbackSubmissions = [];
 let uploadedFiles = [];
 
-// Clean initial contact/inquiry data (NO STARS)
 let contacts = [
   { id: 1, name: "Sahil", email: "sahil@example.com", message: "Love the dark UI theme!" },
   { id: 2, name: "Alex", email: "alex@example.com", message: "Interested in the Pro subscription plan." }
@@ -64,7 +59,6 @@ let contacts = [
 
 const delay = (ms = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Middleware: Verify Token
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -81,7 +75,6 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// --- STANDALONE UPLOAD ENDPOINT ---
 app.post('/api/upload', (req, res) => {
   upload.single('file')(req, res, (err) => {
     if (err instanceof multer.MulterError) {
@@ -120,7 +113,6 @@ app.get('/api/uploads', async (req, res) => {
   res.json(uploadedFiles);
 });
 
-// --- FEEDBACK ENDPOINTS (STARS KEPT HERE) ---
 app.post('/api/feedback', (req, res, next) => {
   upload.single('attachment')(req, res, (err) => {
     if (err) {
@@ -230,7 +222,6 @@ app.delete('/api/feedback/:id', verifyToken, async (req, res) => {
   res.json({ message: "Feedback deleted successfully" });
 });
 
-// --- AUTH ROUTES ---
 app.post('/api/auth/signup', async (req, res) => {
   await delay();
   const { name, email, password } = req.body;
@@ -301,7 +292,6 @@ app.get('/api/admin/active-users', (req, res) => {
   });
 });
 
-// --- CONTACTS / INQUIRIES ROUTES (NO STARS AT ALL) ---
 app.get('/api/contacts', async (req, res) => {
   await delay();
   res.json(contacts);
@@ -356,7 +346,6 @@ app.delete('/api/contacts/:id', verifyToken, async (req, res) => {
   res.json({ message: "Deleted successfully" });
 });
 
-// --- DASHBOARD ANALYTICS ENDPOINT ---
 app.get('/api/analytics', async (req, res) => {
   await delay(300);
   const { category = 'all' } = req.query;
