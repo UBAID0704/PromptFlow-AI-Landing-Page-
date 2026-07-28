@@ -19,7 +19,6 @@ export default function CrudDashboard() {
     try {
       const res = await fetch('http://localhost:5000/api/feedback');
       const data = await res.json();
-      // Ensure state is always an array
       if (Array.isArray(data)) {
         setReviews(data);
       } else if (data && Array.isArray(data.reviews)) {
@@ -58,12 +57,11 @@ export default function CrudDashboard() {
     }
 
     try {
-      // The backend expects multipart/form-data with fullName / experienceDate / comments / rating / attachment
       const payload = new FormData();
       payload.append('fullName', formData.name);
       payload.append('email', formData.email);
       payload.append('category', formData.category);
-      payload.append('rating', 5); // this quick-review widget doesn't collect a star rating, so default to 5
+      payload.append('rating', 5);
       payload.append('experienceDate', formData.date);
       payload.append('comments', formData.feedback);
       payload.append('attachment', file);
@@ -89,7 +87,6 @@ export default function CrudDashboard() {
     }
   };
 
-  // Guard against non-array values before rendering
   const safeReviews = Array.isArray(reviews) ? reviews : [];
 
   return (
