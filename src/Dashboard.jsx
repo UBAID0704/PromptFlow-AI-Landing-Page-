@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-// Dynamically use Vercel environment variable or fallback to local
+// Define API base URL dynamically
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 function Dashboard({ user, onLogout }) {
