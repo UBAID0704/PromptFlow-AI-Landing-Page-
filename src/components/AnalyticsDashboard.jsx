@@ -33,7 +33,6 @@ export default function AnalyticsDashboard() {
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto', color: '#fff' }}>
       
-      {/* HEADER & INTERACTIVE FILTER */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
         <div>
           <h2 style={{ margin: 0, color: '#818cf8', fontSize: '1.8rem' }}>📊 Platform Performance Dashboard</h2>
@@ -42,7 +41,6 @@ export default function AnalyticsDashboard() {
           </p>
         </div>
 
-        {/* INTERACTIVE FILTER CONTROL */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255, 255, 255, 0.05)', padding: '0.5rem 1rem', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <label htmlFor="categoryFilter" style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.8)' }}>Filter Metric:</label>
           <select
@@ -59,7 +57,6 @@ export default function AnalyticsDashboard() {
         </div>
       </div>
 
-      {/* 1. STAT CARDS */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
         <StatCard title="Total Revenue" value={data.summaryCards.totalRevenue} change="+14.2% mo/mo" color="#818cf8" icon="💰" />
         <StatCard title="Active Users" value={data.summaryCards.activeUsers} change="+22.5% new" color="#38bdf8" icon="👥" />
@@ -67,10 +64,8 @@ export default function AnalyticsDashboard() {
         <StatCard title="System Uptime" value={data.summaryCards.systemHealth} change="Healthy" color="#f43f5e" icon="⚡" />
       </div>
 
-      {/* 2. CHARTS GRID */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '1.5rem' }}>
         
-        {/* VISUALIZATION 1: LINE / AREA CHART (MONTHLY TRENDS) */}
         <div style={{ background: 'rgba(17, 24, 39, 0.8)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <h3 style={{ marginTop: 0, fontSize: '1.1rem', color: '#e0e7ff', marginBottom: '1rem' }}>📈 Monthly Activity & Growth</h3>
           <div style={{ width: '100%', height: 280 }}>
@@ -92,7 +87,6 @@ export default function AnalyticsDashboard() {
           </div>
         </div>
 
-        {/* VISUALIZATION 2: PIE / DONUT CHART (CATEGORY DISTRIBUTION) */}
         <div style={{ background: 'rgba(17, 24, 39, 0.8)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
           <h3 style={{ marginTop: 0, fontSize: '1.1rem', color: '#e0e7ff', marginBottom: '1rem' }}>🍰 Usage Distribution by Feature</h3>
           <div style={{ width: '100%', height: 280 }}>
@@ -118,7 +112,6 @@ export default function AnalyticsDashboard() {
           </div>
         </div>
 
-        {/* VISUALIZATION 3: BAR CHART (STORAGE USAGE) */}
         <div style={{ background: 'rgba(17, 24, 39, 0.8)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', gridColumn: '1 / -1' }}>
           <h3 style={{ marginTop: 0, fontSize: '1.1rem', color: '#e0e7ff', marginBottom: '1rem' }}>📊 Storage Consumed (MB)</h3>
           <div style={{ width: '100%', height: 260 }}>
@@ -140,7 +133,6 @@ export default function AnalyticsDashboard() {
   );
 }
 
-// Sub-component for clean Stat Cards
 function StatCard({ title, value, change, color, icon }) {
   return (
     <div style={{ background: 'rgba(17, 24, 39, 0.8)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
