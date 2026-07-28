@@ -14,7 +14,6 @@ export default function FileUpload() {
 
   const fileInputRef = useRef(null);
 
-  // Validate File
   const validateAndSetFile = (selectedFile) => {
     setUploadError(null);
     setUploadedFile(null);
@@ -33,17 +32,15 @@ export default function FileUpload() {
 
     setFile(selectedFile);
 
-    // Image preview generator
     if (selectedFile.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onloadend = () => setPreviewUrl(reader.result);
       reader.readAsDataURL(selectedFile);
     } else {
-      setPreviewUrl(null); // Document icon fallback
+      setPreviewUrl(null);
     }
   };
 
-  // Handlers
   const handleFileSelect = (e) => validateAndSetFile(e.target.files[0]);
 
   const handleDragOver = (e) => {
@@ -61,7 +58,6 @@ export default function FileUpload() {
     }
   };
 
-  // Upload Request using XMLHttpRequest (for smooth progress bar)
   const handleUpload = () => {
     if (!file) return;
 
@@ -75,7 +71,6 @@ export default function FileUpload() {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', 'http://localhost:5000/api/upload', true);
 
-    // Track upload progress
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
         const percentComplete = Math.round((event.loaded / event.total) * 100);
@@ -114,14 +109,12 @@ export default function FileUpload() {
         Upload documents for AI summarization or images for code analysis.
       </p>
 
-      {/* ERROR BANNER */}
       {uploadError && (
         <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', color: '#f87171', fontSize: '0.85rem', marginBottom: '1rem' }}>
           ⚠️ {uploadError}
         </div>
       )}
 
-      {/* DRAG AND DROP ZONE */}
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -153,7 +146,6 @@ export default function FileUpload() {
         </span>
       </div>
 
-      {/* FILE PREVIEW & PROGRESS CARD */}
       {file && (
         <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -181,7 +173,6 @@ export default function FileUpload() {
             </button>
           </div>
 
-          {/* PROGRESS BAR */}
           {isUploading && (
             <div style={{ marginTop: '1rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '0.25rem' }}>
@@ -204,7 +195,6 @@ export default function FileUpload() {
         </div>
       )}
 
-      {/* SUCCESS CARD (POST-UPLOAD DISPLAY) */}
       {uploadedFile && (
         <div style={{ marginTop: '1.5rem', padding: '1rem', background: 'rgba(34, 197, 94, 0.1)', borderRadius: '10px', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
