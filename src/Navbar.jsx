@@ -85,7 +85,6 @@ function Navbar() {
           </button>
         )}
 
-        {/* Admin Mode Toggle Button */}
         <button 
           onClick={() => setIsAdminView(!isAdminView)} 
           style={{ 
