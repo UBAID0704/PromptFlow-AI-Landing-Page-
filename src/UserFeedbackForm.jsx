@@ -21,7 +21,6 @@ export default function UserFeedbackForm() {
     setMessage(null);
     setError(null);
 
-    // Only include attachment if a file was uploaded
     const payload = {
       fullName,
       email,
