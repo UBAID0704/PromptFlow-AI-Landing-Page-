@@ -7,7 +7,6 @@ import App from '../App';
 describe('End-to-End User Flow Test', () => {
 
   beforeEach(() => {
-    // Smart fetch mock: handles all endpoint routes gracefully
     global.fetch = vi.fn().mockImplementation((url) => {
       const urlStr = typeof url === 'string' ? url : url.toString();
 
@@ -59,7 +58,6 @@ describe('End-to-End User Flow Test', () => {
   it('simulates full flow: navigate to feedback tab -> fill form -> submit -> view success state', async () => {
     const { container } = render(<App />);
 
-    // Step 1: Click Feedback tab/button if available
     const feedbackNavBtn = 
       screen.queryByRole('button', { name: /feedback/i }) || 
       screen.queryByRole('tab', { name: /feedback/i }) ||
@@ -69,7 +67,6 @@ describe('End-to-End User Flow Test', () => {
       fireEvent.click(feedbackNavBtn);
     }
 
-    // Step 2: Wait for feedback form/textarea to appear in the DOM
     let feedbackInput = null;
 
     await waitFor(() => {
@@ -83,7 +80,6 @@ describe('End-to-End User Flow Test', () => {
 
     expect(feedbackInput).toBeInTheDocument();
 
-    // Step 3: Fill out form fields
     const nameInput = 
       screen.queryByPlaceholderText(/your name|e\.g\./i) || 
       container.querySelector('input[name="name"]');
@@ -113,10 +109,8 @@ describe('End-to-End User Flow Test', () => {
       fireEvent.change(fileInput, { target: { files: [file] } });
     }
 
-    // Step 4: Type into feedback input
     fireEvent.change(feedbackInput, { target: { value: 'The analytics dashboard component loads quickly!' } });
 
-    // Step 5: Submit form
     const submitBtn = 
       screen.queryByRole('button', { name: /submit|send/i }) ||
       container.querySelector('button[type="submit"]');
